@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { tambahkanKaryawan } from "../../services/firebase/employe";
 import { v4 as uuidv4 } from "uuid";
 
-const TambahKaryawan = () => {
+export default function TambahKaryawan() {
   const userId = localStorage.getItem("userId");
   const navigate = useNavigate();
   const [namaKaryawan, setNamaKaryawan] = useState("");
@@ -85,6 +85,4 @@ const TambahKaryawan = () => {
       </form>
     </div>
   );
-};
-
-export default TambahKaryawan;
+}

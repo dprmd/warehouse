@@ -8,7 +8,7 @@ import {
 import { useState } from "react";
 import { useEffect } from "react";
 
-const KainDalamPerjalanan = () => {
+export default function KainDalamPerjalanan() {
   const navigate = useNavigate();
   const [triggerFetch, setTriggerFetch] = useState(false);
   const userId = localStorage.getItem("userId");
@@ -152,6 +152,4 @@ const KainDalamPerjalanan = () => {
       </div>
     </div>
   );
-};
-
-export default KainDalamPerjalanan;
+}

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { getKainDiGudang } from "../../services/firebase/warehouseService";
 import { useEffect } from "react";
 
-const KainDiGudang = () => {
+export default function KainDiGudang() {
   const userId = localStorage.getItem("userId");
   const [kainDiGudang, setKainDiGudang] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -41,7 +41,7 @@ const KainDiGudang = () => {
       )}
     </div>
   );
-};
+}
 
 const Kain = ({ kain, setTriggerFetch }) => {
   const [berikanKeTukangPotongOpenState, setBerikanKeTukangPotongOpenState] =
@@ -100,5 +100,3 @@ const Kain = ({ kain, setTriggerFetch }) => {
     </li>
   );
 };
-
-export default KainDiGudang;

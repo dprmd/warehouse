@@ -8,7 +8,7 @@ const checkIsUserHaveVisit = () => {
   else return false;
 };
 
-const Home = () => {
+export default function Home() {
   const data = useContext(AppContext);
   const navigate = useNavigate();
 
@@ -65,6 +65,4 @@ const Home = () => {
       </div>
     </div>
   );
-};
-
-export default Home;
+}

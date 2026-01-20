@@ -3,7 +3,12 @@ import { berikanKainKeTukangPotong } from "../../services/firebase/warehouseServ
 import { getDaftarKaryawan } from "../../services/firebase/employe";
 import { useEffect } from "react";
 
-const BerikanKeTukangPotong = ({ open, setOpen, kain, setTriggerFetch }) => {
+export default function BerikanKeTukangPotong({
+  open,
+  setOpen,
+  kain,
+  setTriggerFetch,
+}) {
   const userId = localStorage.getItem("userId");
   const [daftarKaryawan, setDaftarKaryawan] = useState([]);
   const [tukangPotong, setTukangPotong] = useState([]);
@@ -43,9 +48,21 @@ const BerikanKeTukangPotong = ({ open, setOpen, kain, setTriggerFetch }) => {
         return karyawan.typeKaryawan === "Tukang Potong";
       });
       setTukangPotong(tukangPotong);
-      setPilihIdKaryawan(tukangPotong[0].id);
+      setPilihIdKaryawan(tukangPotong[0]?.id);
     });
   }, []);
+
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
 
   if (open) {
     return (
@@ -96,6 +113,4 @@ const BerikanKeTukangPotong = ({ open, setOpen, kain, setTriggerFetch }) => {
   } else {
     return <></>;
   }
-};
-
-export default BerikanKeTukangPotong;
+}

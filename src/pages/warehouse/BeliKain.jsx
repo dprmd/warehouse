@@ -6,7 +6,7 @@ import { RefetchContext } from "../Layout";
 import { formatNumber, raw, validateNumber } from "../../lib/function";
 import { v4 as uuidv4 } from "uuid";
 
-const BeliKain = () => {
+export default function BeliKain() {
   const navigate = useNavigate();
   const [namaKain, setNamaKain] = useState("");
   const [quantity, setQuantity] = useState("");
@@ -143,6 +143,4 @@ const BeliKain = () => {
       </form>
     </div>
   );
-};
-
-export default BeliKain;
+}

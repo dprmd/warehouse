@@ -1,16 +1,21 @@
 import { useState } from "react";
 import { loginUser } from "../services/firebase/userService";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import LoadingOverlay from "../components/LoadingOverlay";
 
-const Login = () => {
+export default function Login() {
   // hooks
   const navigate = useNavigate();
   // state
   const [usernameToko, setUserNameToko] = useState("");
   const [password, setPassword] = useState("");
+  const [isShowPass, setIsShowPass] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
+
+    setLoading(true);
 
     const result = await loginUser(usernameToko, password);
     if (!result.success) {
@@ -23,67 +28,87 @@ const Login = () => {
       navigate("/");
       window.location.reload();
     }
+
+    setLoading(false);
   };
 
   return (
-    <div>
-      <form
-        className="flex flex-col items-center border w-screen h-screen"
-        onSubmit={handleLogin}
-      >
-        <h1 className="text-3xl my-10 font-bold">Masuk Ke Toko Anda</h1>
-        <div className="flex flex-col">
-          <label htmlFor="namaTokoLogin" className="text-xl my-2">
-            Masukan Nama Toko Anda
-          </label>
-          <input
-            type="text"
-            required
-            id="namaTokoLogin"
-            value={usernameToko}
-            onChange={(e) => {
-              setUserNameToko(e.target.value);
-            }}
-            placeholder="Nama Toko"
-            className="outline-1 px-2 py-1 rounded-md"
-          />
-        </div>
-        <div className="flex flex-col">
-          <label htmlFor="kataSandiLogin" className="text-xl my-2">
-            Kata Sandi
-          </label>
-          <input
-            type="password"
-            required
-            id="kataSandiLogin"
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-            }}
-            placeholder="Kata Sandi"
-            className="outline-1 px-2 py-1 rounded-md"
-          />
-        </div>
-        <div className="flex flex-col items-center justify-center gap-y-3 py-6">
-          <button
-            className="bg-green-500 px-2 py-1 rounded-sm text-lg"
-            type="submit"
-          >
-            Masuk
-          </button>
-          <button
-            className="bg-green-500 px-2 py-1 rounded-sm text-lg"
-            type="button"
-            onClick={() => {
-              navigate("/register");
-            }}
-          >
-            Saya Belum Punya Toko
-          </button>
-        </div>
-      </form>
-    </div>
-  );
-};
+    <>
+      <LoadingOverlay show={loading} />
+      <div className="flex pt-15 justify-center bg-gray-50 px-4">
+        <form
+          className="w-full max-w-sm rounded-xl bg-white p-6 shadow-sm"
+          onSubmit={handleLogin}
+        >
+          <h1 className="mb-1 text-xl font-semibold text-gray-800">Login</h1>
+          <p className="mb-6 text-sm text-gray-500">Masuk ke akun Anda</p>
 
-export default Login;
+          <div className="mb-4">
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Username
+            </label>
+            <input
+              type="text"
+              placeholder="username toko"
+              value={usernameToko}
+              onChange={(e) => {
+                setUserNameToko(e.target.value);
+              }}
+              className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm
+               focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
+
+          <div className="mb-6">
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Password
+            </label>
+
+            <div className="relative">
+              <input
+                type={isShowPass ? "text" : "password"}
+                placeholder="password"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                }}
+                className="w-full rounded-lg border border-gray-300 px-4 py-2 pr-10 text-sm
+                 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+
+              <button
+                type="button"
+                className={`${isShowPass ? "bi-eye-fill" : "bi-eye-slash-fill"} absolute inset-y-0 right-3 flex items-center text-gray-400
+                 hover:text-gray-600 focus:outline-none pl-4 pr-1 text-xl`}
+                onClick={() => {
+                  setIsShowPass(!isShowPass);
+                }}
+              ></button>
+            </div>
+          </div>
+          <button
+            type="submit"
+            className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white
+             transition
+             hover:bg-blue-700
+             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+             active:scale-95"
+          >
+            Login
+          </button>
+
+          <p className="mt-4 text-center text-sm text-gray-500">
+            Belum punya akun?
+            <Link
+              to={"/register"}
+              className="font-medium text-blue-600 hover:underline"
+            >
+              {" "}
+              Daftar
+            </Link>
+          </p>
+        </form>
+      </div>
+    </>
+  );
+}

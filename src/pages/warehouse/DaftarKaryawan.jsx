@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { getDaftarKaryawan } from "../../services/firebase/employe";
 
-const DaftarKaryawan = () => {
+export default function DaftarKaryawan() {
   const navigate = useNavigate();
   const userId = localStorage.getItem("userId");
   const [daftarKaryawan, setDaftarKaryawan] = useState([]);
@@ -71,6 +71,4 @@ const DaftarKaryawan = () => {
       </div>
     </div>
   );
-};
-
-export default DaftarKaryawan;
+}

@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from "uuid";
 export const AppContext = createContext();
 export const RefetchContext = createContext();
 
-const Layout = () => {
+export default function Layout() {
   const [data, setData] = useState({});
   const [needRefetch, setRefetch] = useState(uuidv4());
 
@@ -32,6 +32,4 @@ const Layout = () => {
       </AppContext.Provider>
     </RefetchContext.Provider>
   );
-};
-
-export default Layout;
+}

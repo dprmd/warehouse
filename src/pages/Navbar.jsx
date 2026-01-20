@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ButtonLogout from "../components/ButtonLogout";
 
-const Navbar = () => {
+export default function Navbar() {
   const [navOpen, setNavOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -63,6 +63,4 @@ const Navbar = () => {
       )}
     </>
   );
-};
-
-export default Navbar;
+}

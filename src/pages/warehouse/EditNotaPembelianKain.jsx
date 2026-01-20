@@ -7,7 +7,7 @@ import {
   updateNotaPembelian,
 } from "../../services/firebase/warehouseService";
 
-const EditNotaPembelianKain = () => {
+export default function EditNotaPembelianKain() {
   const navigate = useNavigate();
   const userId = localStorage.getItem("userId");
   const { notaId } = useParams();
@@ -155,6 +155,4 @@ const EditNotaPembelianKain = () => {
       </form>
     </div>
   );
-};
-
-export default EditNotaPembelianKain;
+}
