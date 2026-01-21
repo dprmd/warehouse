@@ -33,9 +33,9 @@ export default function Register() {
   };
 
   return (
-    <>
+    <div className="bg-gray-50 min-h-screen">
       <LoadingOverlay show={loading} />
-      <div className="flex pt-15 justify-center bg-gray-50 px-4">
+      <div className="flex pt-15 justify-center px-4">
         <form
           className="w-full max-w-sm rounded-xl bg-white p-6 shadow-sm"
           onSubmit={handleRegister}
@@ -109,6 +109,6 @@ export default function Register() {
           </p>
         </form>
       </div>
-    </>
+    </div>
   );
 }

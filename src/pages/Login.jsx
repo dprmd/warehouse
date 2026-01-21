@@ -33,9 +33,9 @@ export default function Login() {
   };
 
   return (
-    <>
+    <div className="min-h-screen bg-gray-50">
       <LoadingOverlay show={loading} />
-      <div className="flex pt-15 justify-center bg-gray-50 px-4">
+      <div className="flex pt-15 justify-center px-4">
         <form
           className="w-full max-w-sm rounded-xl bg-white p-6 shadow-sm"
           onSubmit={handleLogin}
@@ -109,6 +109,6 @@ export default function Login() {
           </p>
         </form>
       </div>
-    </>
+    </div>
   );
 }
