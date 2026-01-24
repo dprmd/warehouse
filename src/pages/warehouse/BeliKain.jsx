@@ -1,10 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { beliKain } from "../../services/firebase/warehouseService";
-import { useContext } from "react";
-import { RefetchContext } from "../Layout";
 import { formatNumber, raw, validateNumber } from "../../lib/function";
-import { v4 as uuidv4 } from "uuid";
 
 export default function BeliKain() {
   const navigate = useNavigate();
@@ -13,7 +10,6 @@ export default function BeliKain() {
   const [harga, setHarga] = useState("");
   const [quantityType, setQuantityType] = useState("Roll");
   const [namaTokoKain, setNamaTokoKain] = useState("");
-  const setNeedRefetch = useContext(RefetchContext);
 
   const handleBeliKain = async (e) => {
     e.preventDefault();
@@ -31,7 +27,6 @@ export default function BeliKain() {
 
     if (beliSekarang.success) {
       alert(beliSekarang.message);
-      setNeedRefetch(uuidv4());
       navigate("/kainDalamPerjalanan");
     } else {
       alert(beliSekarang.message);

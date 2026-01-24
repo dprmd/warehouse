@@ -1,28 +1,13 @@
-import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
-import { useContext } from "react";
-import { AppContext } from "./Layout";
-const checkIsUserHaveVisit = () => {
-  const check = localStorage.getItem("isUserHaveVisit");
-  if (check) return true;
-  else return false;
-};
+import { useLoaderData } from "react-router-dom";
 
 export default function Home() {
-  const data = useContext(AppContext);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!checkIsUserHaveVisit()) {
-      navigate("/register");
-    }
-  }, [checkIsUserHaveVisit, navigate]);
+  const user = useLoaderData();
 
   return (
     <div className="flex flex-col items-center gap-y-5 h-screen">
       <div className="px-8 py-3">
         <p className="text-center text-xl font-bold">
-          Hello {data.username?.toUpperCase()}
+          Hello {user.username?.toUpperCase()}
         </p>
       </div>
       <div className="flex px-4 py-3 justify-around items-center text-center max-w-screen flex-wrap">
@@ -33,9 +18,7 @@ export default function Home() {
             navigate("/kainDalamPerjalanan");
           }}
         >
-          <span className="font-bold text-xl">
-            {data.kainDalamPerjalanan?.length}
-          </span>
+          <span className="font-bold text-xl">{[].length}</span>
           <span className="text-sm text-gray-500">Kain Dalam Perjalanan</span>
         </button>
 
@@ -46,7 +29,7 @@ export default function Home() {
             navigate("/kainDiGudang");
           }}
         >
-          <span className="font-bold text-xl">{data.kainDiGudang?.length}</span>
+          <span className="font-bold text-xl">{[].length}</span>
           <span className="text-sm text-gray-500">Kain Di Gudang</span>
         </button>
 
@@ -57,9 +40,7 @@ export default function Home() {
             navigate("/daftarKaryawan");
           }}
         >
-          <span className="font-bold text-xl">
-            {data.daftarKaryawan?.length}
-          </span>
+          <span className="font-bold text-xl">{[].length}</span>
           <span className="text-sm text-gray-500">Karyawan</span>
         </button>
       </div>

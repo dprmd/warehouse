@@ -4,6 +4,21 @@ body {
   font-family: "Poppins", sans-serif;
 }
 
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
+}
+
 .primary-btn {
   @apply inline-flex items-center justify-center rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white
          shadow-sm transition
@@ -24,4 +39,11 @@ body {
          transition
          hover:bg-blue-100
          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+}
+
+.red-btn {
+  @apply inline-flex items-center justify-center rounded-lg bg-red-500 px-5 py-2.5 text-sm font-medium text-white
+         transition
+         hover:bg-red-300
+         focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
 }

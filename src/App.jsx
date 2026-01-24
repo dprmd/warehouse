@@ -1,4 +1,6 @@
 import { createHashRouter, RouterProvider } from "react-router-dom";
+import { authLoader } from "./lib/loader";
+import { ToastProvider } from "./components/ToastContext";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -9,17 +11,20 @@ import EditNotaPembelianKain from "./pages/warehouse/EditNotaPembelianKain";
 import KainDiGudang from "./pages/warehouse/KainDiGudang";
 import DaftarKaryawan from "./pages/warehouse/DaftarKaryawan";
 import TambahKaryawan from "./pages/warehouse/TambahKaryawan";
+import LoadingOverlay from "./components/LoadingOverlay";
 
 const router = createHashRouter([
+  { path: "register", element: <Register /> },
+  { path: "login", element: <Login /> },
   {
     path: "/",
     element: <Layout />,
+    hydrateFallbackElement: <LoadingOverlay />,
     children: [
-      { index: true, element: <Home /> },
-      { path: "register", element: <Register /> },
-      { path: "login", element: <Login /> },
+      { index: true, element: <Home />, loader: authLoader },
       {
         path: "kainDalamPerjalanan",
+        loader: authLoader,
         children: [
           { index: true, element: <KainDalamPerjalanan /> },
           { path: "beliKain", element: <BeliKain /> },
@@ -31,10 +36,12 @@ const router = createHashRouter([
       },
       {
         path: "kainDiGudang",
+        loader: authLoader,
         children: [{ index: true, element: <KainDiGudang /> }],
       },
       {
         path: "daftarKaryawan",
+        loader: authLoader,
         children: [
           { index: true, element: <DaftarKaryawan /> },
           { path: "tambahKaryawan", element: <TambahKaryawan /> },
@@ -54,5 +61,9 @@ const router = createHashRouter([
 ]);
 
 export default function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <ToastProvider>
+      <RouterProvider router={router} />
+    </ToastProvider>
+  );
 }

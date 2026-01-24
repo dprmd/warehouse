@@ -2,10 +2,12 @@ import { useState } from "react";
 import { loginUser } from "../services/firebase/userService";
 import { Link, useNavigate } from "react-router-dom";
 import LoadingOverlay from "../components/LoadingOverlay";
+import { useToast } from "../components/ToastContext";
 
 export default function Login() {
   // hooks
   const navigate = useNavigate();
+  const { showToast } = useToast();
   // state
   const [usernameToko, setUserNameToko] = useState("");
   const [password, setPassword] = useState("");
@@ -19,14 +21,11 @@ export default function Login() {
 
     const result = await loginUser(usernameToko, password);
     if (!result.success) {
-      // TODO, buat notif lebih bagus lagi
-      alert(result.message);
+      showToast({ type: "error", message: result.message });
     } else {
-      // TODO, buat notif yang lebih bagus lagi
-      alert("Login Berhasil");
+      showToast({ type: "info", message: result.message });
       localStorage.setItem("isUserHaveVisit", "Yes");
       navigate("/");
-      window.location.reload();
     }
 
     setLoading(false);

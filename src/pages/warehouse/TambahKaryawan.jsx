@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { tambahkanKaryawan } from "../../services/firebase/employe";
-import { v4 as uuidv4 } from "uuid";
 
 export default function TambahKaryawan() {
   const userId = localStorage.getItem("userId");
@@ -20,7 +19,6 @@ export default function TambahKaryawan() {
     if (daftarkanKaryawan.success) {
       alert(daftarkanKaryawan.message);
       navigate("/daftarKaryawan");
-      setRefetch(uuidv4());
     } else {
       alert(daftarkanKaryawan.message);
     }
