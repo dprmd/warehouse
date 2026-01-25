@@ -1,14 +1,8 @@
-import { useState } from "react";
-import { berikanKainKeTukangPotong } from "../../services/firebase/warehouseService";
+import { useEffect, useState } from "react";
 import { getDaftarKaryawan } from "../../services/firebase/employe";
-import { useEffect } from "react";
+import { berikanKainKeTukangPotong } from "../../services/firebase/warehouseService";
 
-export default function BerikanKeTukangPotong({
-  open,
-  setOpen,
-  kain,
-  setTriggerFetch,
-}) {
+export default function BerikanKeTukangPotong({ open, setOpen, kain }) {
   const userId = localStorage.getItem("userId");
   const [daftarKaryawan, setDaftarKaryawan] = useState([]);
   const [tukangPotong, setTukangPotong] = useState([]);
@@ -35,7 +29,6 @@ export default function BerikanKeTukangPotong({
     if (berikanSekarang.success) {
       alert(berikanSekarang.message);
       setOpen(false);
-      setTriggerFetch((prev) => !prev);
     } else {
       alert(berikanSekarang.message);
     }

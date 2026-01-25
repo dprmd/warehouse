@@ -1,8 +1,7 @@
-import { Link, useNavigate } from "react-router-dom";
-import { registerUser } from "../services/firebase/userService";
 import { useState } from "react";
-import LoadingOverlay from "../components/LoadingOverlay";
+import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "../components/ToastContext";
+import { registerUser } from "../services/firebase/userService";
 
 export default function Register() {
   // hooks
@@ -12,12 +11,9 @@ export default function Register() {
   const [usernameToko, setUserNameToko] = useState("");
   const [password, setPassword] = useState("");
   const [isShowPass, setIsShowPass] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   const handleRegister = async (e) => {
     e.preventDefault();
-
-    setLoading(true);
 
     const result = await registerUser(usernameToko, password);
     if (!result.success) {
@@ -27,13 +23,10 @@ export default function Register() {
       localStorage.setItem("isUserHaveVisit", "Yes");
       navigate("/");
     }
-
-    setLoading(false);
   };
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      <LoadingOverlay show={loading} />
       <div className="flex pt-15 justify-center px-4">
         <form
           className="w-full max-w-sm rounded-xl bg-white p-6 shadow-sm"

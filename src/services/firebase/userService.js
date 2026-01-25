@@ -1,87 +1,113 @@
 import {
-  serverTimestamp,
-  getDocs,
-  query,
+  addDoc,
   collection,
-  where,
-  setDoc,
   doc,
   getDoc,
+  getDocs,
+  query,
+  serverTimestamp,
+  where,
 } from "firebase/firestore";
-import { db } from "./firebase";
 import { normalizeString } from "../../lib/function";
-import { v4 as uuidv4 } from "uuid";
+import { db } from "./firebase";
 
 export const registerUser = async (username, password) => {
-  const cleanUsername = normalizeString(username);
+  try {
+    const cleanUsername = normalizeString(username);
 
-  // cek username
-  const q = query(
-    collection(db, "users"),
-    where("username", "==", cleanUsername),
-  );
-  const snap = await getDocs(q);
+    // cek username
+    console.log("Operation : Read , Function Name :", registerUser.name);
+    const q = query(
+      collection(db, "users"),
+      where("username", "==", cleanUsername),
+    );
+    const snap = await getDocs(q);
 
-  if (!snap.empty) {
-    return { success: false, message: "Nama Toko sudah digunakan" };
+    if (!snap.empty) {
+      return { success: false, message: "Nama Toko sudah digunakan" };
+    }
+
+    // buat user jika username belum pernah digunakan
+    console.log("Operation : Create , Function Name :", registerUser.name);
+    const docRef = await addDoc(collection(db, "users"), {
+      username: cleanUsername,
+      password,
+      createdAt: serverTimestamp(),
+    });
+
+    // SIMPAN KE LOCALSTORAGE
+    localStorage.setItem("userId", docRef.id);
+
+    return { success: true, message: "Berhasil Daftar" };
+  } catch (error) {
+    return {
+      success: false,
+      message: error.message,
+      error: error,
+    };
   }
-
-  // generate id
-  const userId = uuidv4();
-
-  await setDoc(doc(db, "users", userId), {
-    username: cleanUsername,
-    password,
-    createdAt: serverTimestamp(),
-  });
-
-  // SIMPAN KE LOCALSTORAGE
-  localStorage.setItem("userId", userId);
-
-  return { success: true, userId };
 };
 
 export const loginUser = async (username, password) => {
-  const cleanUsername = normalizeString(username);
+  try {
+    console.log("Operation : Read , Function Name :", loginUser.name);
+    const cleanUsername = normalizeString(username);
 
-  const q = query(
-    collection(db, "users"),
-    where("username", "==", cleanUsername),
-  );
+    const q = query(
+      collection(db, "users"),
+      where("username", "==", cleanUsername),
+    );
 
-  const snap = await getDocs(q);
+    const snap = await getDocs(q);
 
-  if (snap.empty) {
-    return { success: false, message: "Username Toko tidak ditemukan" };
+    if (snap.empty) {
+      return { success: false, message: "Username Toko tidak ditemukan" };
+    }
+
+    const docSnap = snap.docs[0];
+    const userData = docSnap.data();
+
+    if (userData.password !== password) {
+      return { success: false, message: "Password salah" };
+    }
+
+    // 🔐 SIMPAN IDENTITAS USER YANG BENAR
+    localStorage.setItem("userId", docSnap.id);
+
+    return {
+      success: true,
+      message: "Login berhasil",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error.message,
+    };
   }
-
-  const docSnap = snap.docs[0];
-  const userData = docSnap.data();
-
-  if (userData.password !== password) {
-    return { success: false, message: "Password salah" };
-  }
-
-  // 🔐 SIMPAN IDENTITAS USER YANG BENAR
-  localStorage.setItem("userId", docSnap.id);
-
-  return {
-    success: true,
-    message: "Login berhasil",
-    userId: docSnap.id,
-  };
 };
 
 export const getUserById = async (userId) => {
-  const docRef = doc(db, "users", userId);
-  const docSnap = await getDoc(docRef);
+  try {
+    console.log("Operation : Read , Function Name :", getUserById.name);
+    const docRef = doc(db, "users", userId);
+    const docSnap = await getDoc(docRef);
 
-  if (docSnap.exists()) {
+    if (docSnap.exists()) {
+      return {
+        success: true,
+        id: docSnap.id,
+        ...docSnap.data(),
+      };
+    } else {
+      return {
+        success: false,
+      };
+    }
+  } catch (error) {
     return {
-      id: docSnap.id,
-      ...docSnap.data(),
+      success: false,
+      error: error,
+      message: error.message,
     };
-  } else {
-    return null;
   }
 };

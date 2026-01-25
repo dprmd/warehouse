@@ -1,17 +1,22 @@
 import { createHashRouter, RouterProvider } from "react-router-dom";
-import { authLoader } from "./lib/loader";
+import LoadingOverlay from "./components/LoadingOverlay";
 import { ToastProvider } from "./components/ToastContext";
+import { KainProvider } from "./context/KainContext";
+import { KaryawanProvider } from "./context/KaryawanContext";
+import { UserProvider } from "./context/UserContext";
+import { authLoader } from "./lib/authLoader";
 import Home from "./pages/Home";
+import Layout from "./pages/Layout";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Layout from "./pages/Layout";
-import KainDalamPerjalanan from "./pages/warehouse/KainDalamPerjalanan";
-import BeliKain from "./pages/warehouse/BeliKain";
-import EditNotaPembelianKain from "./pages/warehouse/EditNotaPembelianKain";
-import KainDiGudang from "./pages/warehouse/KainDiGudang";
-import DaftarKaryawan from "./pages/warehouse/DaftarKaryawan";
-import TambahKaryawan from "./pages/warehouse/TambahKaryawan";
-import LoadingOverlay from "./components/LoadingOverlay";
+import KainDiGudang from "./pages/warehouse/ARRIVED_AT_WAREHOUSE/KainDiGudang";
+import DaftarKaryawan from "./pages/warehouse/EMPLOYEE/DaftarKaryawan";
+import TambahKaryawan from "./pages/warehouse/EMPLOYEE/TambahKaryawan";
+import BeliKain from "./pages/warehouse/IN_TRANSIT/BeliKain";
+import EditNotaPembelianKain from "./pages/warehouse/IN_TRANSIT/EditNotaPembelianKain";
+import KainDalamPerjalanan from "./pages/warehouse/IN_TRANSIT/KainDalamPerjalanan";
+
+const userId = localStorage.getItem("userId");
 
 const router = createHashRouter([
   { path: "register", element: <Register /> },
@@ -19,12 +24,12 @@ const router = createHashRouter([
   {
     path: "/",
     element: <Layout />,
-    hydrateFallbackElement: <LoadingOverlay />,
+    hydrateFallbackElement: <LoadingOverlay show={true} text="Error" />,
+    loader: authLoader,
     children: [
-      { index: true, element: <Home />, loader: authLoader },
+      { index: true, element: <Home /> },
       {
         path: "kainDalamPerjalanan",
-        loader: authLoader,
         children: [
           { index: true, element: <KainDalamPerjalanan /> },
           { path: "beliKain", element: <BeliKain /> },
@@ -36,12 +41,10 @@ const router = createHashRouter([
       },
       {
         path: "kainDiGudang",
-        loader: authLoader,
         children: [{ index: true, element: <KainDiGudang /> }],
       },
       {
         path: "daftarKaryawan",
-        loader: authLoader,
         children: [
           { index: true, element: <DaftarKaryawan /> },
           { path: "tambahKaryawan", element: <TambahKaryawan /> },
@@ -62,8 +65,14 @@ const router = createHashRouter([
 
 export default function App() {
   return (
-    <ToastProvider>
-      <RouterProvider router={router} />
-    </ToastProvider>
+    <KaryawanProvider ownerId={userId}>
+      <UserProvider ownerId={userId}>
+        <KainProvider ownerId={userId}>
+          <ToastProvider>
+            <RouterProvider router={router} />
+          </ToastProvider>
+        </KainProvider>
+      </UserProvider>
+    </KaryawanProvider>
   );
 }

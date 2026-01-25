@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { loginUser } from "../services/firebase/userService";
 import { Link, useNavigate } from "react-router-dom";
-import LoadingOverlay from "../components/LoadingOverlay";
 import { useToast } from "../components/ToastContext";
 
 export default function Login() {
@@ -12,12 +11,8 @@ export default function Login() {
   const [usernameToko, setUserNameToko] = useState("");
   const [password, setPassword] = useState("");
   const [isShowPass, setIsShowPass] = useState(false);
-  const [loading, setLoading] = useState(false);
-
   const handleLogin = async (e) => {
     e.preventDefault();
-
-    setLoading(true);
 
     const result = await loginUser(usernameToko, password);
     if (!result.success) {
@@ -27,13 +22,10 @@ export default function Login() {
       localStorage.setItem("isUserHaveVisit", "Yes");
       navigate("/");
     }
-
-    setLoading(false);
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <LoadingOverlay show={loading} />
       <div className="flex pt-15 justify-center px-4">
         <form
           className="w-full max-w-sm rounded-xl bg-white p-6 shadow-sm"

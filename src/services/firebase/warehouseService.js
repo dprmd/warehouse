@@ -1,26 +1,26 @@
 import {
   addDoc,
-  arrayUnion,
   collection,
   deleteDoc,
   doc,
   getDoc,
   getDocs,
+  query,
   setDoc,
   updateDoc,
+  where,
 } from "firebase/firestore";
 import { db } from "./firebase";
 
-export const beliKain = async (userId, notaPembelian) => {
+export const beliKain = async (notaPembelian) => {
   try {
-    await addDoc(
-      collection(db, "users", userId, "kainDalamPerjalanan"),
-      notaPembelian,
-    );
+    console.log("Operation : Create , Function Name :", beliKain.name);
+    const docRef = await addDoc(collection(db, "kain"), notaPembelian);
 
     return {
       success: true,
       message: "Berhasil Membeli Kain",
+      id: docRef.id,
     };
   } catch (error) {
     return {
@@ -30,32 +30,37 @@ export const beliKain = async (userId, notaPembelian) => {
   }
 };
 
-export const getKainDalamPerjalanan = async (userId) => {
-  const snap = await getDocs(
-    collection(db, "users", userId, "kainDalamPerjalanan"),
-  );
-
-  return snap.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  }));
-};
-
-export const getKainById = async (userId, idKain) => {
-  const ref = doc(db, "users", userId, "kainDalamPerjalanan", idKain);
-  const snap = await getDoc(ref);
-
-  if (!snap.exists()) return null;
-
-  return {
-    id: snap.id,
-    ...snap.data(),
-  };
-};
-
-export const hapusNotaPembelianKain = async (userId, idKain) => {
+export const getKain = async (ownerId) => {
   try {
-    const ref = doc(db, "users", userId, "kainDalamPerjalanan", idKain);
+    console.log("Operation : Read , Function Name :", getKain.name);
+    const q = query(collection(db, "kain"), where("ownerId", "==", ownerId));
+
+    const snapshot = await getDocs(q);
+
+    const result = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    return {
+      success: true,
+      data: result,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error,
+    };
+  }
+};
+
+export const hapusNotaPembelianKain = async (idKain) => {
+  try {
+    console.log(
+      "Operation : Delete , Function Name :",
+      hapusNotaPembelianKain.name,
+    );
+    const ref = doc(db, "kain", idKain);
     await deleteDoc(ref);
 
     return {
@@ -70,9 +75,13 @@ export const hapusNotaPembelianKain = async (userId, idKain) => {
   }
 };
 
-export const updateNotaPembelian = async (userId, idKain, newNota) => {
+export const updateNotaPembelian = async (idKain, newNota) => {
   try {
-    const ref = doc(db, "users", userId, "kainDalamPerjalanan", idKain);
+    console.log(
+      "Operation : Update , Function Name :",
+      updateNotaPembelian.name,
+    );
+    const ref = doc(db, "kain", idKain);
     const snap = await getDoc(ref);
 
     if (!snap.exists()) return;
@@ -91,15 +100,22 @@ export const updateNotaPembelian = async (userId, idKain, newNota) => {
   }
 };
 
-export const pindahkanKainKeGudang = async (userId, nota) => {
+export const pindahkanKainKeGudang = async (idKain) => {
   try {
-    const kainRef = doc(db, "users", userId, "kainDalamPerjalanan", nota.id);
-    await deleteDoc(kainRef);
-
-    await setDoc(doc(db, "users", userId, "kainDiGudang", nota.id), {
-      ...nota,
-      waktuSampaiDiGudang: new Date().getTime(),
-    });
+    console.log(
+      "Operation : Update , Function Name :",
+      pindahkanKainKeGudang.name,
+    );
+    await setDoc(
+      doc(db, "kain", idKain),
+      {
+        status: "ARRIVED_AT_WAREHOUSE",
+        time: {
+          arrivalTime: new Date().getTime(),
+        },
+      },
+      { merge: true },
+    );
 
     return {
       success: true,
@@ -111,15 +127,6 @@ export const pindahkanKainKeGudang = async (userId, nota) => {
       message: error.message,
     };
   }
-};
-
-export const getKainDiGudang = async (userId) => {
-  const snap = await getDocs(collection(db, "users", userId, "kainDiGudang"));
-
-  return snap.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  }));
 };
 
 export const berikanKainKeTukangPotong = async (

@@ -1,31 +1,50 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { tambahkanKaryawan } from "../../services/firebase/employe";
+import LoadingOverlay from "../../../components/LoadingOverlay";
+import { useToast } from "../../../components/ToastContext";
+import { tambahkanKaryawan } from "../../../services/firebase/employee";
+import { useKaryawan } from "../../../context/KaryawanContext";
 
 export default function TambahKaryawan() {
   const userId = localStorage.getItem("userId");
   const navigate = useNavigate();
+  const { showToast } = useToast();
+  const { data, setData } = useKaryawan();
+  const [loadingTambahKaryawan, setLoadingTambahKaryawan] = useState(false);
   const [namaKaryawan, setNamaKaryawan] = useState("");
   const [typeKaryawan, setTypeKaryawan] = useState("Penjahit");
 
   const handleTambahkanKaryawan = async (e) => {
     e.preventDefault();
 
+    setLoadingTambahKaryawan(true);
+
     const karyawanBaru = {
+      ownerId: userId,
       namaKaryawan,
       typeKaryawan,
+      updatedAt: new Date().getTime(),
     };
-    const daftarkanKaryawan = await tambahkanKaryawan(userId, karyawanBaru);
+
+    const daftarkanKaryawan = await tambahkanKaryawan(karyawanBaru);
+
     if (daftarkanKaryawan.success) {
-      alert(daftarkanKaryawan.message);
+      showToast({ type: "info", message: daftarkanKaryawan.message });
+      setLoadingTambahKaryawan(false);
+      setData([...data, karyawanBaru]);
       navigate("/daftarKaryawan");
     } else {
-      alert(daftarkanKaryawan.message);
+      showToast({ type: "error", message: daftarkanKaryawan.message });
+      setLoadingTambahKaryawan(false);
     }
   };
 
   return (
     <div>
+      <LoadingOverlay
+        show={loadingTambahKaryawan}
+        text="Menambahkan Karyawan . . ."
+      />
       <form
         className="flex flex-col items-center w-screen h-screen"
         onSubmit={handleTambahkanKaryawan}

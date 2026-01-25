@@ -51,7 +51,7 @@ export default function Navbar() {
         </div>
       </nav>
       <div
-        className={`z-50 w-[80%] bg-gray-100 mt-13 fixed top-0 left-0 h-full text-white
+        className={`z-50 w-[80%] bg-gray-50 mt-13 fixed top-0 left-0 h-full text-white
     transform transition-transform duration-300 ease-in-out
     ${navOpen ? "translate-x-0" : "-translate-x-full"}`}
         onClick={() => {

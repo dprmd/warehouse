@@ -1,63 +1,69 @@
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { useEffect } from "react";
-import { formatNumber, raw, validateNumber } from "../../lib/function";
-import {
-  getKainById,
-  updateNotaPembelian,
-} from "../../services/firebase/warehouseService";
+import { useNavigate } from "react-router-dom";
+import { useKain } from "../../../context/KainContext";
+import LoadingOverlay from "../../../components/LoadingOverlay";
+import { useToast } from "../../../components/ToastContext";
+import { formatNumber, raw, validateNumber } from "../../../lib/function";
+import { beliKain } from "../../../services/firebase/warehouseService";
 
-export default function EditNotaPembelianKain() {
+export default function BeliKain() {
   const navigate = useNavigate();
-  const userId = localStorage.getItem("userId");
-  const { notaId } = useParams();
-  const [nota, setNota] = useState();
-
-  const [namaKain, setNamaKain] = useState();
+  const [namaKain, setNamaKain] = useState("");
   const [quantity, setQuantity] = useState("");
+  const [harga, setHarga] = useState("");
   const [quantityType, setQuantityType] = useState("Roll");
   const [namaTokoKain, setNamaTokoKain] = useState("");
-  const [harga, setHarga] = useState("");
+  const [loadingBeliKain, setLoadingBeliKain] = useState(false);
+  const { showToast } = useToast();
+  const { data, setData } = useKain();
 
-  const handleEditNota = async (e) => {
+  const handleBeliKain = async (e) => {
     e.preventDefault();
 
-    const newNota = {
-      ...nota,
+    setLoadingBeliKain(true);
+
+    const userId = localStorage.getItem("userId");
+    const notaPembelian = {
+      ownerId: userId,
       namaKain,
-      quantity: quantity,
+      quantity: raw(quantity),
       quantityType,
-      namaTokoKain,
-      harga: raw(harga),
+      from: namaTokoKain,
+      price: raw(harga),
+      status: "IN_TRANSIT",
+      time: {
+        timeOfPurchase: new Date().getTime(),
+        updatedAt: new Date().getTime(),
+      },
     };
+    const beliSekarang = await beliKain(notaPembelian);
 
-    const updateNota = await updateNotaPembelian(userId, notaId, newNota);
-
-    if (updateNota.success) {
-      alert(updateNota.message);
+    if (beliSekarang.success) {
+      showToast({ type: "info", message: beliSekarang.message });
+      setLoadingBeliKain(false);
+      setData([
+        ...data,
+        {
+          ...notaPembelian,
+          id: beliSekarang.id,
+        },
+      ]);
       navigate("/kainDalamPerjalanan");
+    } else {
+      showToast({ type: "error", message: beliSekarang.message });
+      setLoadingBeliKain(false);
     }
   };
 
-  useEffect(() => {
-    getKainById(userId, notaId).then((kain) => {
-      setNamaKain(kain.namaKain);
-      setQuantity(kain.quantity);
-      setQuantityType(kain.quantityType);
-      setNamaTokoKain(kain.namaTokoKain);
-      setHarga(formatNumber(kain.harga));
-      setNota(kain);
-    });
-  }, []);
-
   return (
     <div>
+      <LoadingOverlay show={loadingBeliKain} text="Mohon Tunggu . . ." />
       <form
-        className="flex flex-col items-center border w-screen h-screen"
-        onSubmit={handleEditNota}
+        className="flex flex-col items-center w-screen h-screen"
+        onSubmit={handleBeliKain}
       >
-        <h1 className="text-3xl my-10 font-bold">Edit Nota Pembelian Kain</h1>
-        <div className="flex flex-col w-100">
+        <h1 className="text-3xl my-10 font-bold">Beli Kain</h1>
+        <div className="flex flex-col">
           <label htmlFor="namaKain" className="text-xl my-2">
             Masukan Nama Kain
           </label>
@@ -70,10 +76,10 @@ export default function EditNotaPembelianKain() {
               setNamaKain(e.target.value);
             }}
             placeholder="Nama Kain"
-            className="outline-1 px-2 py-1 rounded-md"
+            className="outline-1 px-2 py-1 rounded-md w-80"
           />
         </div>
-        <div className="flex flex-col w-100">
+        <div className="flex flex-col">
           <label htmlFor="quantity" className="text-xl my-2">
             Berapa Banyak
           </label>
@@ -87,7 +93,7 @@ export default function EditNotaPembelianKain() {
                 setQuantity(e.target.value);
               }}
               placeholder="Berapa Roll / Yard"
-              className="outline-1 px-2 py-1 rounded-md"
+              className="outline-1 px-2 py-1 rounded-md w-60"
             />
             <select
               id="quantityType"
@@ -95,14 +101,14 @@ export default function EditNotaPembelianKain() {
               onChange={(e) => {
                 setQuantityType(e.target.value);
               }}
-              className="outline-1 px-2 py-1 rounded-md w-80"
+              className="w-20 outline-1 rounded-md"
             >
               <option value="Roll">Roll</option>
               <option value="Yard">Yard</option>
             </select>
           </div>
         </div>
-        <div className="flex flex-col w-100">
+        <div className="flex flex-col">
           <label htmlFor="namaTokoKain" className="text-xl my-2">
             Beli Dari Textille Mana
           </label>
@@ -114,11 +120,11 @@ export default function EditNotaPembelianKain() {
             onChange={(e) => {
               setNamaTokoKain(e.target.value);
             }}
-            placeholder="Nama Kain"
-            className="outline-1 px-2 py-1 rounded-md"
+            placeholder="Nama Toko Kain"
+            className="outline-1 px-2 py-1 rounded-md w-80"
           />
         </div>
-        <div className="flex flex-col w-100">
+        <div className="flex flex-col">
           <label htmlFor="hargaKain" className="text-xl my-2">
             Total Pembelian
           </label>
@@ -131,15 +137,15 @@ export default function EditNotaPembelianKain() {
               const number = validateNumber(e);
               setHarga(formatNumber(number));
             }}
-            placeholder="Berapa"
-            className="outline-1 px-2 py-1 rounded-md"
+            placeholder="Berapa Harganya"
+            className="outline-1 px-2 py-1 rounded-md w-80"
           />
         </div>
         <div className="flex items-center justify-center gap-x-3 py-6">
           <button
             className="bg-green-500 px-2 py-1 rounded-sm text-lg"
             type="button"
-            onClick={(e) => {
+            onClick={() => {
               navigate("/kainDalamPerjalanan");
             }}
           >
@@ -149,7 +155,7 @@ export default function EditNotaPembelianKain() {
             className="bg-green-500 px-2 py-1 rounded-sm text-lg"
             type="submit"
           >
-            Simpan
+            Beli Kain
           </button>
         </div>
       </form>

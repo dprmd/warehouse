@@ -32,9 +32,8 @@ export const formatTanggalJamIndonesia = (ms) => {
   const date = new Date(ms);
 
   return new Intl.DateTimeFormat("id-ID", {
-    weekday: "long",
     day: "numeric",
-    month: "long",
+    month: "short",
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
@@ -44,3 +43,9 @@ export const formatTanggalJamIndonesia = (ms) => {
     .format(date)
     .replace(",", "");
 };
+
+export const formatPrice = (price) =>
+  new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+  }).format(price);

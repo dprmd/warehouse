@@ -1,27 +1,15 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { useEffect } from "react";
-import { getDaftarKaryawan } from "../../services/firebase/employe";
+import LoadingOverlay from "../../../components/LoadingOverlay";
+import { useKaryawan } from "../../../context/KaryawanContext";
 
 export default function DaftarKaryawan() {
   const navigate = useNavigate();
-  const userId = localStorage.getItem("userId");
-  const [daftarKaryawan, setDaftarKaryawan] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    getDaftarKaryawan(userId).then((data) => {
-      setDaftarKaryawan(data);
-      setLoading(false);
-      console.log(data);
-    });
-  }, []);
+  const { data, loading } = useKaryawan();
+  const daftarKaryawan = data;
 
   return (
     <div className="px-8 py-6">
-      {loading && (
-        <p className="text-center text-2xl font-black">Loading . . .</p>
-      )}
+      <LoadingOverlay show={loading} text="Memuat . . ." />
       {!loading && daftarKaryawan?.length === 0 && (
         <p className="text-center text-2xl font-black">
           Kamu Tidak Punya Karyawan Sekarang 🙂
@@ -32,7 +20,7 @@ export default function DaftarKaryawan() {
           {daftarKaryawan?.map((karyawan) => (
             <li
               key={karyawan.id}
-              className="w-full bg-slate-200 p-5 gap-y-2 flex flex-col rounded-xl"
+              className="w-full bg-gray-100 p-5 gap-y-2 flex flex-col rounded-xl border border-slate-400"
             >
               <div>
                 <i className="bi bi-person-circle text-7xl text-gray-500"></i>
