@@ -28,7 +28,7 @@ export function KaryawanProvider({ ownerId, children }) {
   return (
     <KaryawanContext.Provider
       value={{
-        data: data.reverse(),
+        data,
         setData,
         loading,
         error,

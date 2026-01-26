@@ -21,7 +21,8 @@ export default function Register() {
     } else {
       showToast({ type: "info", message: result.message });
       localStorage.setItem("isUserHaveVisit", "Yes");
-      navigate("/");
+      await navigate("/");
+      window.location.reload();
     }
   };
 

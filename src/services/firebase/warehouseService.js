@@ -54,18 +54,15 @@ export const getKain = async (ownerId) => {
   }
 };
 
-export const hapusNotaPembelianKain = async (idKain) => {
+export const hapusKain = async (idKain) => {
   try {
-    console.log(
-      "Operation : Delete , Function Name :",
-      hapusNotaPembelianKain.name,
-    );
+    console.log("Operation : Delete , Function Name :", hapusKain.name);
     const ref = doc(db, "kain", idKain);
     await deleteDoc(ref);
 
     return {
       success: true,
-      message: "Berhasil Menghapus Nota Pembelian Kain",
+      message: "Berhasil Menghapus Kain",
     };
   } catch (error) {
     return {
@@ -75,22 +72,19 @@ export const hapusNotaPembelianKain = async (idKain) => {
   }
 };
 
-export const updateNotaPembelian = async (idKain, newNota) => {
+export const updateKain = async (idKain, newKain) => {
   try {
-    console.log(
-      "Operation : Update , Function Name :",
-      updateNotaPembelian.name,
-    );
+    console.log("Operation : Update , Function Name :", updateKain.name);
     const ref = doc(db, "kain", idKain);
     const snap = await getDoc(ref);
 
     if (!snap.exists()) return;
 
-    await updateDoc(ref, newNota);
+    await updateDoc(ref, newKain);
 
     return {
       success: true,
-      message: "Edit Nota Pembelian Berhasil",
+      message: "Edit Kain Berhasil",
     };
   } catch (error) {
     return {

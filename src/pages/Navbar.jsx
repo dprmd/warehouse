@@ -1,22 +1,34 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ButtonLogout from "../components/ButtonLogout";
-import { useRef } from "react";
-import { useEffect } from "react";
+import HamburgerMenuButton from "../components/HamburgerMenuButton";
 
 export default function Navbar() {
   const [navOpen, setNavOpen] = useState(false);
   const navigate = useNavigate();
-  const navbarRef = useRef(null);
+  const sidebarRef = useRef(null);
+  const hamburgerRef = useRef(null);
+  const logoRef = useRef(null);
 
+  const menus = [
+    { to: "kainDalamPerjalanan", label: "Kain Dalam Perjalanan" },
+    { to: "kainDiGudang", label: "Kain Di Gudang" },
+    { to: "daftarKaryawan", label: "Daftar Karyawan" },
+  ];
+
+  // close sidebar when click outside (mobile only)
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (navbarRef.current && !navbarRef.current.contains(event.target)) {
+    function handleClickOutside(e) {
+      if (
+        hamburgerRef.current &&
+        sidebarRef.current &&
+        !sidebarRef.current.contains(e.target)
+      ) {
         setNavOpen(false);
       }
     }
 
-    if (open) {
+    if (navOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
 
@@ -27,50 +39,61 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="px-4 py-2 border-b flex justify-between items-center gap-x-2 fixed w-screen bg-white">
-        <div className="flex justify-center items-center">
-          <div
-            className="inline-flex flex-col justify-between h-6 cursor-pointer"
-            onClick={() => {
-              setNavOpen(!navOpen);
-            }}
-          >
-            <span className="block w-7 h-1 bg-black"></span>
-            <span className="block w-7 h-1 bg-black"></span>
-            <span className="block w-7 h-1 bg-black"></span>
-          </div>
-          <button
-            className="inline-block text-2xl cursor-pointer mx-2"
-            onClick={() => {
-              setNavOpen(false);
-              navigate("/");
-            }}
-          >
-            Warehouse
-          </button>
-        </div>
+      {/* TOP NAVBAR (mobile only) */}
+      <nav className="fixed top-0 left-0 z-50 h-12 w-full px-4 border-b border-b-gray-300 bg-white flex items-center md:hidden">
+        <HamburgerMenuButton
+          open={navOpen}
+          onToggle={(e) => {
+            setNavOpen(!navOpen);
+          }}
+          ref={hamburgerRef}
+        />
+        <button
+          className="ml-2 text-xl font-semibold"
+          onClick={() => {
+            setNavOpen(false);
+            navigate("/");
+          }}
+        >
+          Warehouse
+        </button>
       </nav>
-      <div
-        className={`z-50 w-[80%] bg-gray-50 mt-13 fixed top-0 left-0 h-full text-white
+
+      {/* SIDEBAR */}
+      <aside
+        ref={sidebarRef}
+        className={`
+    fixed left-0 z-40
+    h-[calc(100vh-3rem)]
+    w-[80%] max-w-xs
+    bg-white border-r border-r-gray-300
     transform transition-transform duration-300 ease-in-out
-    ${navOpen ? "translate-x-0" : "-translate-x-full"}`}
-        onClick={() => {
-          setNavOpen(false);
-        }}
+    ${navOpen ? "translate-x-0" : "-translate-x-full"}
+    md:translate-x-0 md:top-0 md:h-screen md:w-100
+  `}
       >
-        <div className="px-8 py-6 flex flex-col gap-y-4">
-          <Link to="kainDalamPerjalanan" className="secondary-btn">
-            Kain Dalam Perjalanan
-          </Link>
-          <Link to="kainDiGudang" className="secondary-btn">
-            Kain Di Gudang
-          </Link>
-          <Link to="daftarKaryawan" className="secondary-btn">
-            Daftar Karyawan
-          </Link>
-          <ButtonLogout className={"red-btn"} />
+        <div className="px-6 py-6 mt-12 md:mt-0 flex flex-col gap-y-4">
+          {menus.map((menu) => (
+            <Link
+              key={menu.to}
+              to={menu.to}
+              className="secondary-btn"
+              onClick={() => setNavOpen(false)}
+            >
+              {menu.label}
+            </Link>
+          ))}
+          <ButtonLogout className="red-btn" />
         </div>
-      </div>
+      </aside>
+
+      {/* OVERLAY (mobile only) */}
+      {navOpen && (
+        <div
+          className="fixed inset-x-0 bottom-0 top-12 z-30 bg-black/30 md:hidden"
+          onClick={() => setNavOpen(false)}
+        />
+      )}
     </>
   );
 }

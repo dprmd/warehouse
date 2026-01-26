@@ -1,9 +1,26 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { formatPrice, formatTanggalJamIndonesia } from "../lib/function";
+import { useEffect, useState } from "react";
 import {
-  hapusNotaPembelianKain,
+  Button,
+  Form,
+  FormGroup,
+  Input,
+  InputControlled,
+  Label,
+  SelectControlled,
+} from "../components/Form";
+import Modal from "../components/Modal";
+import { useKain } from "../context/KainContext";
+import {
+  formatNumber,
+  formatPrice,
+  formatTanggalJamIndonesia,
+  raw,
+  validateNumber,
+} from "../lib/function";
+import {
+  hapusKain,
   pindahkanKainKeGudang,
+  updateKain,
 } from "../services/firebase/warehouseService";
 import LoadingOverlay from "./LoadingOverlay";
 import { useToast } from "./ToastContext";
@@ -16,67 +33,153 @@ const STATUS_STYLE = {
 };
 
 export default function KainCard({ kain, data, setData }) {
-  const navigate = useNavigate();
   const { showToast } = useToast();
   const { id, namaKain, from, quantity, quantityType, price, status, time } =
     kain;
   const [loadingHapus, setLoadingHapus] = useState(false);
   const [loadingMove, setLoadingMove] = useState(false);
+  const [modalBerikan, setModalBerikan] = useState(false);
+  const [modalPindahkan, setModalPindahkan] = useState(false);
+  const [modalHapusKain, setModalHapusKain] = useState(false);
+  const [modalHapusNota, setModalHapusNota] = useState(false);
+  const [modalEditNota, setModalEditNota] = useState(false);
+  const [modalEditKain, setModalEditKain] = useState(false);
 
-  const handleHapusNotaPembelian = async () => {
-    const konfirmasiPenghapusan = confirm("Apakah Yakin Akan Menghapus Nota ?");
-    if (konfirmasiPenghapusan) {
-      setLoadingHapus(true);
-      const hapusNotaPembelian = await hapusNotaPembelianKain(id);
+  const handleHapusKain = async () => {
+    setLoadingHapus(true);
+    const hapusKainSekarang = await hapusKain(id);
 
-      if (hapusNotaPembelian.success) {
-        const listNotaPembelianBaru = data.filter((kain) => kain.id !== id);
-        setData(listNotaPembelianBaru);
-        showToast({ type: "info", message: hapusNotaPembelian.message });
-        setLoadingHapus(false);
-      } else {
-        showToast({ type: "error", message: hapusNotaPembelian.message });
-        setLoadingHapus(false);
-      }
+    if (hapusKainSekarang.success) {
+      const listKainDiGudang = data.filter((kain) => kain.id !== id);
+      setData(listKainDiGudang);
+      showToast({ type: "info", message: hapusKainSekarang.message });
+      setLoadingHapus(false);
+    } else {
+      showToast({ type: "error", message: hapusKainSekarang.message });
+      setLoadingHapus(false);
     }
   };
 
   const handlePindahkanKeGudang = async (nota) => {
-    const konfirmasiPemindahan = confirm(
-      "Apakah Yakin Akan Di Pindahkan Ke Gudang ?",
-    );
+    setLoadingMove(true);
+    const pindahkanKeGudang = await pindahkanKainKeGudang(id);
 
-    if (konfirmasiPemindahan) {
-      setLoadingMove(true);
-      const pindahkanKeGudang = await pindahkanKainKeGudang(id);
+    if (pindahkanKeGudang.success) {
+      setLoadingMove(false);
+      showToast({ type: "info", message: pindahkanKeGudang.message });
+      const listKainBaru = data.map((kain) => {
+        if (kain.id === id) {
+          return {
+            ...kain,
+            status: "ARRIVED_AT_WAREHOUSE",
+            time: {
+              ...kain.time,
+              arrivalTime: new Date().getTime(),
+            },
+          };
+        }
 
-      if (pindahkanKeGudang.success) {
-        setLoadingMove(false);
-        showToast({ type: "info", message: pindahkanKeGudang.message });
-        const listKainBaru = data.map((kain) => {
-          if (kain.id === id) {
-            return {
-              ...kain,
-              status: "ARRIVED_AT_WAREHOUSE",
-              time: {
-                ...kain.time,
-                arrivalTime: new Date().getTime(),
-              },
-            };
-          }
-
-          return kain;
-        });
-        setData(listKainBaru);
-      } else {
-        showToast({ type: "info", message: pindahkanKeGudang.message });
-        setLoadingMove(false);
-      }
+        return kain;
+      });
+      setData(listKainBaru);
+    } else {
+      showToast({ type: "info", message: pindahkanKeGudang.message });
+      setLoadingMove(false);
     }
   };
 
+  const handleBerikanKeTukangPotong = () => {};
+
+  const modals = [
+    {
+      isOpen: modalPindahkan,
+      title: "Pindahkan Ke Gudang",
+      contentText: "Apakah Anda Yakin ?",
+      nextText: "Pindahkan",
+      onNext: handlePindahkanKeGudang,
+      onClose: () => {
+        setModalPindahkan(false);
+      },
+    },
+    {
+      isOpen: modalHapusKain,
+      title: "Hapus",
+      contentText: "Apakah Anda Yakin ?",
+      nextText: "Hapus",
+      onNext: handleHapusKain,
+      onClose: () => {
+        setModalHapusKain(false);
+      },
+    },
+    {
+      isOpen: modalHapusNota,
+      title: "Hapus",
+      contentText: "Apakah Anda Yakin ?",
+      nextText: "Hapus",
+      onNext: handleHapusKain,
+      onClose: () => {
+        setModalHapusNota(false);
+      },
+    },
+    {
+      isOpen: modalEditNota,
+      title: "Edit Nota Pembelian Kain",
+      closeDisabled: true,
+      onClose: () => {
+        setModalEditNota(false);
+      },
+      children: (
+        <EditKain
+          kain={kain}
+          closeModal={() => {
+            setModalEditNota(false);
+          }}
+        />
+      ),
+    },
+    {
+      isOpen: modalEditKain,
+      title: "Edit Kain",
+      closeDisabled: true,
+      onClose: () => {
+        setModalEditKain(false);
+      },
+      children: (
+        <EditKain
+          kain={kain}
+          closeModal={() => {
+            setModalEditKain(false);
+          }}
+        />
+      ),
+    },
+    {
+      isOpen: modalBerikan,
+      title: "Berikan Ke Tukang Potong",
+      contentText: false,
+      nextText: "Berikan",
+      onNext: () => {},
+      onClose: () => {
+        setModalBerikan(false);
+      },
+      children: null,
+    },
+  ];
+
   return (
-    <div className="rounded-2xl border bg-white p-4 shadow-sm hover:shadow-md transition w-100">
+    <div className="rounded-2xl border border-gray-400 bg-white p-4 shadow-sm hover:shadow-md transition w-100">
+      {modals.map((modal) => (
+        <Modal
+          isOpen={modal.isOpen}
+          title={modal.title}
+          nextText={modal.nextText}
+          contentText={modal.contentText}
+          onNext={modal.onNext}
+          closeDisabled={modal.closeDisabled}
+          onClose={modal.onClose}
+          children={modal.children}
+        />
+      ))}
       <LoadingOverlay show={loadingHapus} text="Menghapus . . ." />
       <LoadingOverlay show={loadingMove} text="Memindahkan . . ." />
       {/* Header */}
@@ -88,21 +191,44 @@ export default function KainCard({ kain, data, setData }) {
 
         {/* Action Buttons */}
         <div className="flex gap-2">
+          {/* Tombol Edit Untuk Kain Dalam Perjalanan */}
           {status === "IN_TRANSIT" && (
             <>
               <button
                 className="text-xs px-3 py-1 rounded-lg border hover:bg-gray-50 active:bg-gray-200"
                 onClick={() => {
-                  navigate(
-                    `/kainDalamPerjalanan/editNotaPembelianKain/${kain.id}`,
-                  );
+                  setModalEditNota(true);
                 }}
               >
                 Edit
               </button>
               <button
                 className="text-xs px-3 py-1 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 active:bg-red-50"
-                onClick={handleHapusNotaPembelian}
+                onClick={() => {
+                  setModalHapusNota(true);
+                }}
+              >
+                Hapus
+              </button>
+            </>
+          )}
+
+          {/* Tombol Edit Untuk Kain Di Gudang */}
+          {status === "ARRIVED_AT_WAREHOUSE" && (
+            <>
+              <button
+                className="text-xs px-3 py-1 rounded-lg border hover:bg-gray-50 active:bg-gray-200"
+                onClick={() => {
+                  setModalEditKain(true);
+                }}
+              >
+                Edit
+              </button>
+              <button
+                className="text-xs px-3 py-1 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 active:bg-red-50"
+                onClick={() => {
+                  setModalHapusKain(true);
+                }}
               >
                 Hapus
               </button>
@@ -131,25 +257,182 @@ export default function KainCard({ kain, data, setData }) {
           {status === "IN_TRANSIT" && (
             <button
               className="text-xs px-3 py-1 rounded-lg bg-green-600 text-white hover:bg-green-700"
-              onClick={handlePindahkanKeGudang}
+              onClick={() => {
+                setModalPindahkan(true);
+              }}
             >
+              <span className="bi bi-house-check-fill mr-2"></span>
               Sampai di Gudang
+            </button>
+          )}
+          {status === "ARRIVED_AT_WAREHOUSE" && (
+            <button
+              className="text-xs px-3 py-1 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+              onClick={() => {
+                setModalBerikan(true);
+              }}
+            >
+              <span className="bi bi-house-check-fill mr-2"></span>
+              Potong
             </button>
           )}
         </div>
       </div>
 
       {/* Waktu */}
-      <div className="flex justify-between mt-4 flex-col">
-        <span className="text-xs text-gray-400">
-          Waktu Pembelian : {formatTanggalJamIndonesia(time.timeOfPurchase)}
-        </span>
+      <div className="grid grid-cols-[max-content_1fr] gap-x-3 text-xs mt-4 text-gray-400">
+        <div>Waktu Pembelian</div>
+        <div>: {formatTanggalJamIndonesia(time.timeOfPurchase)}</div>
         {status === "ARRIVED_AT_WAREHOUSE" && (
-          <span className="text-xs text-gray-400">
-            Waktu Sampai : {formatTanggalJamIndonesia(time.arrivalTime)}
-          </span>
+          <>
+            <div>Waktu Sampai</div>
+            <div>: {formatTanggalJamIndonesia(time.arrivalTime)}</div>
+          </>
         )}
       </div>
     </div>
   );
 }
+
+const EditKain = ({ kain, closeModal }) => {
+  const { showToast } = useToast();
+  const { data, setData } = useKain();
+  const [namaKain, setNamaKain] = useState();
+  const [quantity, setQuantity] = useState("");
+  const [quantityType, setQuantityType] = useState("Roll");
+  const [namaTokoKain, setNamaTokoKain] = useState("");
+  const [harga, setHarga] = useState("");
+
+  const [loadingSave, setLoadingSave] = useState(false);
+
+  const handleEditKain = async (e) => {
+    e.preventDefault();
+
+    if (
+      kain.namaKain === namaKain &&
+      kain.quantity === quantity &&
+      kain.quantityType === quantityType &&
+      kain.from === namaTokoKain &&
+      kain.price === raw(harga)
+    ) {
+      showToast({ type: "info", message: "Tidak Ada Yang Di Ubah" });
+      closeModal();
+      return;
+    }
+
+    setLoadingSave(true);
+
+    const newKain = {
+      ...kain,
+      namaKain,
+      quantity,
+      quantityType,
+      from: namaTokoKain,
+      price: raw(harga),
+    };
+
+    const updateKainSekarang = await updateKain(kain.id, newKain);
+
+    if (updateKainSekarang.success) {
+      showToast({ type: "info", message: updateKainSekarang.message });
+      setData(
+        data.map((item) => {
+          if (item.id === newKain.id) {
+            return newKain;
+          }
+
+          return item;
+        }),
+      );
+      setLoadingSave(false);
+      closeModal();
+    } else {
+      showToast({ type: "error", message: updateKainSekarang.message });
+      setLoadingSave(false);
+      closeModal();
+    }
+  };
+
+  useEffect(() => {
+    setNamaKain(kain?.namaKain);
+    setQuantity(kain?.quantity);
+    setQuantityType(kain?.quantityType);
+    setNamaTokoKain(kain?.from);
+    setHarga(formatNumber(kain?.price));
+  }, []);
+
+  const options = [
+    { label: "Roll", value: "Roll" },
+    { label: "Yard", value: "Yard" },
+  ];
+
+  return (
+    <Form onSubmit={handleEditKain}>
+      <LoadingOverlay show={loadingSave} text="Menyimpan . . ." />
+      <FormGroup>
+        <Label htmlFor="namaKain">Nama Kain</Label>
+        <InputControlled
+          id="namaKain"
+          value={namaKain}
+          onChange={setNamaKain}
+          placeholder="Nama Kain"
+          required
+        ></InputControlled>
+      </FormGroup>
+      <FormGroup>
+        <Label htmlFor="quantity">Berapa Banyak</Label>
+
+        <div className="flex gap-2">
+          <div className="flex-2">
+            <InputControlled
+              id="quantity"
+              type="number"
+              value={quantity}
+              onChange={setQuantity}
+              placeholder="Berapa Roll / Yard"
+              required
+            />
+          </div>
+
+          <div className="flex-1">
+            <SelectControlled
+              value={quantityType}
+              onChange={setQuantityType}
+              options={options}
+              required
+            />
+          </div>
+        </div>
+      </FormGroup>
+      <FormGroup>
+        <Label htmlFor="namaTokoKain">Nama Kain</Label>
+        <InputControlled
+          id="namaTokoKain"
+          value={namaTokoKain}
+          onChange={setNamaTokoKain}
+          placeholder="Nama Toko Kain"
+          required
+        ></InputControlled>
+      </FormGroup>
+      <FormGroup>
+        <Label htmlFor="hargaKain">Total Pembelian</Label>
+        <Input
+          id="hargaKain"
+          value={harga}
+          onChange={(e) => {
+            const number = validateNumber(e);
+            setHarga(formatNumber(number));
+          }}
+          placeholder="Berapa Harganya"
+          required
+        ></Input>
+      </FormGroup>
+      <FormGroup className="flex-row justify-end">
+        <Button variant="secondary" onClick={closeModal} type="button">
+          Tutup
+        </Button>
+        <Button type="submit">Simpan</Button>
+      </FormGroup>
+    </Form>
+  );
+};

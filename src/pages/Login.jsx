@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { loginUser } from "../services/firebase/userService";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "../components/ToastContext";
+import { loginUser } from "../services/firebase/userService";
 
 export default function Login() {
   // hooks
@@ -20,7 +20,8 @@ export default function Login() {
     } else {
       showToast({ type: "info", message: result.message });
       localStorage.setItem("isUserHaveVisit", "Yes");
-      navigate("/");
+      await navigate("/");
+      window.location.reload();
     }
   };
 

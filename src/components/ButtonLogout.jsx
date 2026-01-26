@@ -7,7 +7,6 @@ export default function ButtonLogout({ className }) {
     localStorage.removeItem("isUserHaveVisit");
     localStorage.removeItem("userId");
     navigate("/");
-    window.location.reload();
   };
 
   return (

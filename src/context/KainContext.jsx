@@ -28,7 +28,7 @@ export function KainProvider({ ownerId, children }) {
   return (
     <KainContext.Provider
       value={{
-        data: data.reverse(),
+        data,
         setData,
         loading,
         error,

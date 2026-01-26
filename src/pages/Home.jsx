@@ -1,9 +1,19 @@
 import { useNavigate } from "react-router-dom";
 import LoadingOverlay from "../components/LoadingOverlay";
 import { useUser } from "../context/UserContext";
+import { useKain } from "../context/KainContext";
+import { useKaryawan } from "../context/KaryawanContext";
 
 export default function Home() {
   const { user, loading } = useUser();
+  const { data: kain } = useKain();
+  const { data: karyawan } = useKaryawan();
+  const kainDalamPerjalanan = kain.filter(
+    (item) => item.status === "IN_TRANSIT",
+  );
+  const kainDiGudang = kain.filter(
+    (item) => item.status === "ARRIVED_AT_WAREHOUSE",
+  );
   const navigate = useNavigate();
 
   return (
@@ -23,7 +33,9 @@ export default function Home() {
               navigate("/kainDalamPerjalanan");
             }}
           >
-            <span className="font-bold text-xl">{[].length}</span>
+            <span className="font-bold text-xl">
+              {kainDalamPerjalanan.length}
+            </span>
             <span className="text-sm text-gray-500">Kain Dalam Perjalanan</span>
           </button>
 
@@ -34,7 +46,7 @@ export default function Home() {
               navigate("/kainDiGudang");
             }}
           >
-            <span className="font-bold text-xl">{[].length}</span>
+            <span className="font-bold text-xl">{kainDiGudang.length}</span>
             <span className="text-sm text-gray-500">Kain Di Gudang</span>
           </button>
 
@@ -45,7 +57,7 @@ export default function Home() {
               navigate("/daftarKaryawan");
             }}
           >
-            <span className="font-bold text-xl">{[].length}</span>
+            <span className="font-bold text-xl">{karyawan.length}</span>
             <span className="text-sm text-gray-500">Karyawan</span>
           </button>
         </div>
