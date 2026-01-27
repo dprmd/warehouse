@@ -1,6 +1,5 @@
 import { createHashRouter, RouterProvider } from "react-router-dom";
 import LoadingOverlay from "./components/LoadingOverlay";
-import { ToastProvider } from "./components/ToastContext";
 import { KainProvider } from "./context/KainContext";
 import { KaryawanProvider } from "./context/KaryawanContext";
 import { UserProvider } from "./context/UserContext";
@@ -63,9 +62,7 @@ export default function App() {
     <KaryawanProvider ownerId={userId}>
       <UserProvider ownerId={userId}>
         <KainProvider ownerId={userId}>
-          <ToastProvider>
-            <RouterProvider router={router} />
-          </ToastProvider>
+          <RouterProvider router={router} />
         </KainProvider>
       </UserProvider>
     </KaryawanProvider>

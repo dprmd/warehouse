@@ -49,3 +49,12 @@ export const formatPrice = (price) =>
     style: "currency",
     currency: "IDR",
   }).format(price);
+
+export const withLoading = async (setLoading, fn) => {
+  try {
+    setLoading(true);
+    await fn();
+  } finally {
+    setLoading(false);
+  }
+};

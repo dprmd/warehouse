@@ -30,6 +30,12 @@ export function ToastProvider({ children }) {
   );
 }
 
-export function useToast() {
-  return useContext(ToastContext);
-}
+export const useToast = () => {
+  const context = useContext(ToastContext);
+
+  if (!context) {
+    throw new Error("useToast digunakan di luar ToastProvider");
+  }
+
+  return context;
+};

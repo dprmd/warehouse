@@ -2,6 +2,7 @@ import { useEffect } from "react";
 
 const Modal = ({
   isOpen,
+  setIsOpen,
   onClose,
   title,
 
@@ -59,7 +60,10 @@ const Modal = ({
         <div className="mt-6 flex justify-end gap-2">
           {!closeDisabled && (
             <button
-              onClick={onClose}
+              onClick={() => {
+                onClose();
+                setIsOpen(false);
+              }}
               className="rounded-lg border px-4 py-2 text-sm hover:bg-gray-100"
             >
               Tutup
