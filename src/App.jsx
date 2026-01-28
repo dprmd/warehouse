@@ -17,8 +17,6 @@ import KainDalamPerjalanan from "./pages/warehouse/IN_TRANSIT/KainDalamPerjalana
 const userId = localStorage.getItem("userId");
 
 const router = createHashRouter([
-  { path: "register", element: <Register /> },
-  { path: "login", element: <Login /> },
   {
     path: "/",
     element: <Layout />,
@@ -26,6 +24,8 @@ const router = createHashRouter([
     loader: authLoader,
     children: [
       { index: true, element: <Home /> },
+      { path: "register", element: <Register /> },
+      { path: "login", element: <Login /> },
       {
         path: "kainDalamPerjalanan",
         children: [
