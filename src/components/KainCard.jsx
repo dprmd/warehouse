@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import {
   formatPrice,
   formatTanggalJamIndonesia,
@@ -8,31 +9,13 @@ import {
   hapusKain,
   pindahkanKainKeGudang,
 } from "../services/firebase/warehouseService";
+import EditKain from "./EditKain";
 import LoadingOverlay from "./LoadingOverlay";
 import { useModal } from "./ModalContext";
-import { useToast } from "./ToastContext";
-import EditKain from "./EditKain";
-
-const STATUS_CONFIG = {
-  IN_TRANSIT: {
-    label: "IN TRANSIT",
-    statusStyle: "bg-orange-100 text-orange-700",
-    buttonStyle: "bg-green-600 text-white hover:bg-green-700",
-    primaryActionText: "Sampai Di Gudang",
-  },
-  ARRIVED_AT_WAREHOUSE: {
-    label: "ARRIVED AT WAREHOUSE",
-    statusStyle: "bg-green-100 text-green-700",
-    buttonStyle: "bg-blue-600 text-white hover:bg-blue-700",
-    primaryActionText: "Potong",
-  },
-};
 
 export default function KainCard({ kain, data, setData }) {
-  const { showToast } = useToast();
   const { id, namaKain, from, quantity, quantityType, price, status, time } =
     kain;
-  const config = STATUS_CONFIG[status];
   const [loadingHapus, setLoadingHapus] = useState(false);
   const [loadingMove, setLoadingMove] = useState(false);
   const { showModal, closeModal } = useModal();
@@ -43,12 +26,12 @@ export default function KainCard({ kain, data, setData }) {
       const res = await hapusKain(id);
 
       if (!res.success) {
-        showToast({ type: "error", message: res.message });
+        toast.error(res.message, { position: "top-center", duration: 1500 });
         return;
       }
 
-      setData(data.filter((k) => k.id !== id));
-      showToast({ type: "info", message: res.message });
+      setData(data.filter((kain) => kain.id !== id));
+      toast.info(res.message, { position: "top-center", duration: 1500 });
     });
   };
 
@@ -58,65 +41,45 @@ export default function KainCard({ kain, data, setData }) {
       const res = await pindahkanKainKeGudang(id);
 
       if (!res.success) {
-        showToast({ type: "error", message: res.message });
+        toast.error(res.message, { position: "top-center", duration: 1500 });
         return;
       }
 
-      showToast({ type: "info", message: res.message });
-      const listKainBaru = data.map((kain) => {
-        if (kain.id === id) {
-          return {
-            ...kain,
-            status: "ARRIVED_AT_WAREHOUSE",
-            time: {
-              ...kain.time,
-              arrivalTime: new Date().getTime(),
-            },
-          };
-        }
+      toast.info(res.message, { position: "top-center", duration: 1500 });
+      setData(
+        data.map((kain) => {
+          if (kain.id === id) {
+            return {
+              ...kain,
+              status: "ARRIVED_AT_WAREHOUSE",
+              time: {
+                ...kain.time,
+                arrivalTime: new Date().getTime(),
+              },
+            };
+          }
 
-        return kain;
-      });
-      setData(listKainBaru);
+          return kain;
+        }),
+      );
     });
   };
 
-  const handleEdit = () => {
-    switch (status) {
-      case "IN_TRANSIT":
+  const STATUS_CONFIG = {
+    IN_TRANSIT: {
+      label: "IN TRANSIT",
+      statusStyle: "bg-orange-100 text-orange-700",
+      buttonStyle: "bg-green-600 text-white hover:bg-green-700",
+      primaryActionText: "Sampai Di Gudang",
+      edit: () => {
         showModal({
           id: "edit-nota-pembelian",
           title: "Edit Nota Pembelian Kain",
           closeDisabled: true,
-          children: (
-            <EditKain
-              kain={kain}
-              closeModal={closeModal}
-              showToast={showToast}
-            />
-          ),
+          children: <EditKain kain={kain} closeModal={closeModal} />,
         });
-        break;
-      case "ARRIVED_AT_WAREHOUSE":
-        showModal({
-          id: "edit-kain",
-          title: "Edit Kain",
-          closeDisabled: true,
-          children: (
-            <EditKain
-              kain={kain}
-              closeModal={closeModal}
-              showToast={showToast}
-            />
-          ),
-        });
-        break;
-    }
-  };
-
-  const handleHapus = () => {
-    switch (status) {
-      case "IN_TRANSIT":
+      },
+      hapus: () => {
         showModal({
           id: "hapus-nota-pembelian",
           title: "Hapus",
@@ -124,22 +87,8 @@ export default function KainCard({ kain, data, setData }) {
           nextText: "Hapus",
           onNext: handleHapusKain,
         });
-        break;
-      case "ARRIVED_AT_WAREHOUSE":
-        showModal({
-          id: "hapus-kain",
-          title: "Hapus",
-          contentText: "Apakah Anda Yakin ?",
-          nextText: "Hapus",
-          onNext: handleHapusKain,
-        });
-        break;
-    }
-  };
-
-  const handleNext = () => {
-    switch (status) {
-      case "IN_TRANSIT":
+      },
+      next: () => {
         showModal({
           id: "pindahkan-ke-gudang",
           title: "Pindahkan Ke Gudang",
@@ -147,16 +96,40 @@ export default function KainCard({ kain, data, setData }) {
           nextText: "Pindahkan",
           onNext: handlePindahkanKeGudang,
         });
-        break;
-      case "ARRIVED_AT_WAREHOUSE":
+      },
+    },
+    ARRIVED_AT_WAREHOUSE: {
+      label: "ARRIVED AT WAREHOUSE",
+      statusStyle: "bg-green-100 text-green-700",
+      buttonStyle: "bg-blue-600 text-white hover:bg-blue-700",
+      primaryActionText: "Potong",
+      edit: () => {
+        showModal({
+          id: "edit-kain",
+          title: "Edit Kain",
+          closeDisabled: true,
+          children: <EditKain kain={kain} closeModal={closeModal} />,
+        });
+      },
+      hapus: () => {
+        showModal({
+          id: "hapus-kain",
+          title: "Hapus",
+          contentText: "Apakah Anda Yakin ?",
+          nextText: "Hapus",
+          onNext: handleHapusKain,
+        });
+      },
+      next: () => {
         showModal({
           id: "berikan-ke-tukang-potong",
           title: "Berikan Ke Tukang Potong",
           nextText: "Berikan",
         });
-        break;
-    }
+      },
+    },
   };
+  const config = STATUS_CONFIG[status];
 
   return (
     <div className="rounded-2xl border border-gray-400 bg-white p-4 shadow-sm hover:shadow-md transition w-100">
@@ -174,13 +147,13 @@ export default function KainCard({ kain, data, setData }) {
           <>
             <button
               className="text-xs px-3 py-1 rounded-lg border hover:bg-gray-50 active:bg-gray-200"
-              onClick={handleEdit}
+              onClick={config.edit}
             >
               Edit
             </button>
             <button
               className="text-xs px-3 py-1 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 active:bg-red-50"
-              onClick={handleHapus}
+              onClick={config.hapus}
             >
               Hapus
             </button>
@@ -207,7 +180,7 @@ export default function KainCard({ kain, data, setData }) {
         <div className="flex items-center gap-3">
           <button
             className={`text-xs px-3 py-1 rounded-lg ${config.buttonStyle}`}
-            onClick={handleNext}
+            onClick={config.next}
           >
             <>
               <span className="bi bi-house-check-fill mr-2"></span>

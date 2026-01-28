@@ -1,10 +1,11 @@
-import { useNavigate } from "react-router-dom";
 import KainCard from "../../../components/KainCard";
 import LoadingOverlay from "../../../components/LoadingOverlay";
+import { useModal } from "../../../components/ModalContext";
 import { useKain } from "../../../context/KainContext";
+import BeliKain from "./BeliKain";
 
 export default function KainDalamPerjalanan() {
-  const navigate = useNavigate();
+  const { showModal, closeModal } = useModal();
   const { data, setData, loading } = useKain();
   const kainDalamPerjalanan = data.filter(
     (kain) => kain.status === "IN_TRANSIT",
@@ -36,19 +37,18 @@ export default function KainDalamPerjalanan() {
         </div>
       )}
       <div className="fixed right-5 bottom-5 flex justify-center items-center">
-        {kainDalamPerjalanan?.length === 0 && (
-          <div className="mx-4">
-            <p className="text-xl font-bold">
-              Beli Kain Di Sini <span className="text-2xl">👉</span>
-            </p>
-          </div>
-        )}
         <button
-          className="w-15 h-15 bg-green-600 rounded-full text-4xl text-gray-100 cursor-pointer"
+          className="w-10 h-10 bg-gray-600 rounded-full text-3xl text-gray-100 cursor-pointer"
           onClick={() => {
-            navigate("beliKain");
+            showModal({
+              id: "beli-kain",
+              title: "Beli Kain",
+              closeDisabled: true,
+              children: <BeliKain closeModal={closeModal} />,
+            });
           }}
         >
+          {" "}
           +
         </button>
       </div>

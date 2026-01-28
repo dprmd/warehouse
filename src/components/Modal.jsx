@@ -39,7 +39,7 @@ const Modal = ({
   return (
     <div className="px-2 fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/40" />
 
       {/* Modal box */}
       <div className="relative w-full max-w-md rounded-xl bg-white p-6 shadow-lg">

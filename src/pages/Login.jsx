@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useToast } from "../components/ToastContext";
 import { loginUser } from "../services/firebase/userService";
+import { toast } from "sonner";
 
 export default function Login() {
   // hooks
   const navigate = useNavigate();
-  const { showToast } = useToast();
   // state
   const [usernameToko, setUserNameToko] = useState("");
   const [password, setPassword] = useState("");
@@ -16,9 +15,9 @@ export default function Login() {
 
     const result = await loginUser(usernameToko, password);
     if (!result.success) {
-      showToast({ type: "error", message: result.message });
+      toast.error(result.message, { position: "top-center", duration: 1500 });
     } else {
-      showToast({ type: "info", message: result.message });
+      toast.info(result.message, { position: "top-center", duration: 1500 });
       localStorage.setItem("isUserHaveVisit", "Yes");
       await navigate("/");
       window.location.reload();

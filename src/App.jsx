@@ -11,7 +11,6 @@ import Register from "./pages/Register";
 import KainDiGudang from "./pages/warehouse/ARRIVED_AT_WAREHOUSE/KainDiGudang";
 import DaftarKaryawan from "./pages/warehouse/EMPLOYEE/DaftarKaryawan";
 import TambahKaryawan from "./pages/warehouse/EMPLOYEE/TambahKaryawan";
-import BeliKain from "./pages/warehouse/IN_TRANSIT/BeliKain";
 import KainDalamPerjalanan from "./pages/warehouse/IN_TRANSIT/KainDalamPerjalanan";
 
 const userId = localStorage.getItem("userId");
@@ -28,10 +27,7 @@ const router = createHashRouter([
       { path: "login", element: <Login /> },
       {
         path: "kainDalamPerjalanan",
-        children: [
-          { index: true, element: <KainDalamPerjalanan /> },
-          { path: "beliKain", element: <BeliKain /> },
-        ],
+        children: [{ index: true, element: <KainDalamPerjalanan /> }],
       },
       {
         path: "kainDiGudang",

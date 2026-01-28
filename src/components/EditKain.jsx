@@ -17,8 +17,9 @@ import {
   SelectControlled,
 } from "./Form";
 import LoadingOverlay from "./LoadingOverlay";
+import { toast } from "sonner";
 
-export default function EditKain({ kain, closeModal, showToast }) {
+export default function EditKain({ kain, closeModal }) {
   const { data, setData } = useKain();
 
   const [form, setForm] = useState({
@@ -42,7 +43,10 @@ export default function EditKain({ kain, closeModal, showToast }) {
 
     if (isSameKain(kain, { ...form, price: raw(form.price) })) {
       closeModal();
-      showToast({ type: "info", message: "Tidak Ada Yang Di Ubah" });
+      toast.error("Tidak Ada Yang Di Ubah", {
+        position: "top-center",
+        duration: 1500,
+      });
       return;
     }
 
@@ -56,21 +60,20 @@ export default function EditKain({ kain, closeModal, showToast }) {
       const res = await updateKain(kain.id, newKain);
 
       if (!res.success) {
-        showToast({ type: "error", message: res.message });
+        toast.error(res.message, { position: "top-center", duration: 1500 });
         closeModal();
         return;
       }
 
-      showToast({ type: "info", message: res.message });
-      setData(
-        data.map((item) => {
-          if (item.id === newKain.id) {
-            return newKain;
-          }
+      toast.info(res.message, { position: "top-center", duration: 1500 });
+      const listKainBaru = data.map((item) => {
+        if (item.id === newKain.id) {
+          return newKain;
+        }
 
-          return item;
-        }),
-      );
+        return item;
+      });
+      setData(listKainBaru);
       closeModal();
     });
   };
@@ -123,7 +126,7 @@ export default function EditKain({ kain, closeModal, showToast }) {
         </div>
       </FormGroup>
       <FormGroup>
-        <Label htmlFor="namaTokoKain">Nama Kain</Label>
+        <Label htmlFor="namaTokoKain">Nama Toko Kain</Label>
         <InputControlled
           id="namaTokoKain"
           value={form.from}

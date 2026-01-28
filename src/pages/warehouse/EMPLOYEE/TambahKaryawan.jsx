@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LoadingOverlay from "../../../components/LoadingOverlay";
-import { useToast } from "../../../components/ToastContext";
 import { tambahkanKaryawan } from "../../../services/firebase/employee";
 import { useKaryawan } from "../../../context/KaryawanContext";
+import { toast } from "sonner";
 
 export default function TambahKaryawan() {
   const userId = localStorage.getItem("userId");
   const navigate = useNavigate();
-  const { showToast } = useToast();
   const { data, setData } = useKaryawan();
   const [loadingTambahKaryawan, setLoadingTambahKaryawan] = useState(false);
   const [namaKaryawan, setNamaKaryawan] = useState("");
@@ -29,12 +28,18 @@ export default function TambahKaryawan() {
     const daftarkanKaryawan = await tambahkanKaryawan(karyawanBaru);
 
     if (daftarkanKaryawan.success) {
-      showToast({ type: "info", message: daftarkanKaryawan.message });
+      toast.info(daftarkanKaryawan.message, {
+        position: "top-center",
+        duration: 1500,
+      });
       setLoadingTambahKaryawan(false);
       setData([...data, karyawanBaru]);
       navigate("/daftarKaryawan");
     } else {
-      showToast({ type: "error", message: daftarkanKaryawan.message });
+      toast.error(daftarkanKaryawan.message, {
+        position: "top-center",
+        duration: 1500,
+      });
       setLoadingTambahKaryawan(false);
     }
   };

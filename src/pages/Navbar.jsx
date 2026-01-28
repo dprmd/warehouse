@@ -8,7 +8,6 @@ export default function Navbar() {
   const navigate = useNavigate();
   const sidebarRef = useRef(null);
   const hamburgerRef = useRef(null);
-  const logoRef = useRef(null);
 
   const menus = [
     { to: "kainDalamPerjalanan", label: "Kain Dalam Perjalanan" },
@@ -72,6 +71,14 @@ export default function Navbar() {
     md:translate-x-0 md:top-0 md:h-screen md:w-100
   `}
       >
+        <h1
+          className="fixed md:relative md:p-2 md:mt-4 md:text-center md:text-xl md:font-semibold md:cursor-pointer"
+          onClick={() => {
+            navigate("/");
+          }}
+        >
+          Warehouse
+        </h1>
         <div className="px-6 py-6 mt-12 md:mt-0 flex flex-col gap-y-4">
           {menus.map((menu) => (
             <Link
