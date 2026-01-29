@@ -35,10 +35,7 @@ const router = createHashRouter([
       },
       {
         path: "daftarKaryawan",
-        children: [
-          { index: true, element: <DaftarKaryawan /> },
-          { path: "tambahKaryawan", element: <TambahKaryawan /> },
-        ],
+        children: [{ index: true, element: <DaftarKaryawan /> }],
       },
 
       // Contoh nested route
