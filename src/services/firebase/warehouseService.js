@@ -94,15 +94,16 @@ export const updateKain = async (idKain, newKain) => {
   }
 };
 
-export const pindahkanKainKeGudang = async (idKain) => {
+export const pindahkanKainKeGudang = async (kain) => {
   try {
     console.log(
       "Operation : Update , Function Name :",
       pindahkanKainKeGudang.name,
     );
     await setDoc(
-      doc(db, "kain", idKain),
+      doc(db, "kain", kain.id),
       {
+        quanityRemaining: kain.quantity,
         status: "ARRIVED_AT_WAREHOUSE",
         time: {
           arrivalTime: new Date().getTime(),

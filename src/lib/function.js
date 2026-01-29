@@ -1,3 +1,5 @@
+import { useLoading } from "../components/LoadingContext";
+
 export const normalizeString = (str) => {
   return str.trim().toLowerCase().replace(/\s+/g, " ");
 };
@@ -49,12 +51,3 @@ export const formatPrice = (price) =>
     style: "currency",
     currency: "IDR",
   }).format(price);
-
-export const withLoading = async (setLoading, fn) => {
-  try {
-    setLoading(true);
-    await fn();
-  } finally {
-    setLoading(false);
-  }
-};

@@ -1,11 +1,6 @@
 import { useEffect, useState } from "react";
 import { useKain } from "../context/KainContext";
-import {
-  formatNumber,
-  raw,
-  validateNumber,
-  withLoading,
-} from "../lib/function";
+import { formatNumber, raw, validateNumber } from "../lib/function";
 import { updateKain } from "../services/firebase/warehouseService";
 import {
   Button,
@@ -16,11 +11,12 @@ import {
   Label,
   SelectControlled,
 } from "./Form";
-import LoadingOverlay from "./LoadingOverlay";
 import { toast } from "sonner";
+import { useLoading } from "./LoadingContext";
 
 export default function EditKain({ kain, closeModal }) {
   const { data, setData } = useKain();
+  const { showLoading, closeLoading } = useLoading();
 
   const [form, setForm] = useState({
     namaKain: "",
@@ -32,8 +28,6 @@ export default function EditKain({ kain, closeModal }) {
 
   const updateForm = (key) => (value) =>
     setForm((prev) => ({ ...prev, [key]: value }));
-
-  const [loadingSave, setLoadingSave] = useState(false);
 
   const handleEditKain = async (e) => {
     e.preventDefault();
@@ -56,7 +50,8 @@ export default function EditKain({ kain, closeModal }) {
       price: raw(form.price),
     };
 
-    withLoading(setLoadingSave, async () => {
+    try {
+      showLoading("Menyimpan . . .");
       const res = await updateKain(kain.id, newKain);
 
       if (!res.success) {
@@ -75,7 +70,9 @@ export default function EditKain({ kain, closeModal }) {
       });
       setData(listKainBaru);
       closeModal();
-    });
+    } finally {
+      closeLoading();
+    }
   };
 
   useEffect(() => {
@@ -89,7 +86,6 @@ export default function EditKain({ kain, closeModal }) {
 
   return (
     <Form onSubmit={handleEditKain}>
-      <LoadingOverlay show={loadingSave} text="Menyimpan . . ." />
       <FormGroup>
         <Label htmlFor="namaKain">Nama Kain</Label>
         <InputControlled
@@ -98,7 +94,7 @@ export default function EditKain({ kain, closeModal }) {
           onChange={updateForm("namaKain")}
           placeholder="Nama Kain"
           required
-        ></InputControlled>
+        />
       </FormGroup>
       <FormGroup>
         <Label htmlFor="quantity">Berapa Banyak</Label>
@@ -133,7 +129,7 @@ export default function EditKain({ kain, closeModal }) {
           onChange={updateForm("from")}
           placeholder="Nama Toko Kain"
           required
-        ></InputControlled>
+        />
       </FormGroup>
       <FormGroup>
         <Label htmlFor="hargaKain">Total Pembelian</Label>

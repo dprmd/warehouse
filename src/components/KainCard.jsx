@@ -1,28 +1,23 @@
-import { useState } from "react";
 import { toast } from "sonner";
-import {
-  formatPrice,
-  formatTanggalJamIndonesia,
-  withLoading,
-} from "../lib/function";
+import { formatPrice, formatTanggalJamIndonesia } from "../lib/function";
 import {
   hapusKain,
   pindahkanKainKeGudang,
 } from "../services/firebase/warehouseService";
 import EditKain from "./EditKain";
-import LoadingOverlay from "./LoadingOverlay";
+import { useLoading } from "./LoadingContext";
 import { useModal } from "./ModalContext";
 
 export default function KainCard({ kain, data, setData }) {
   const { id, namaKain, from, quantity, quantityType, price, status, time } =
     kain;
-  const [loadingHapus, setLoadingHapus] = useState(false);
-  const [loadingMove, setLoadingMove] = useState(false);
   const { showModal, closeModal } = useModal();
+  const { showLoading, closeLoading } = useLoading();
 
   const handleHapusKain = async () => {
-    withLoading(setLoadingHapus, async () => {
+    try {
       closeModal();
+      showLoading("Menghapus . . .");
       const res = await hapusKain(id);
 
       if (!res.success) {
@@ -30,15 +25,19 @@ export default function KainCard({ kain, data, setData }) {
         return;
       }
 
+      // OPTIMISTIC UI
       setData(data.filter((kain) => kain.id !== id));
       toast.info(res.message, { position: "top-center", duration: 1500 });
-    });
+    } finally {
+      closeLoading();
+    }
   };
 
-  const handlePindahkanKeGudang = async (nota) => {
-    withLoading(setLoadingMove, async () => {
+  const handlePindahkanKeGudang = async () => {
+    try {
       closeModal();
-      const res = await pindahkanKainKeGudang(id);
+      showLoading("Memindahkan . . .");
+      const res = await pindahkanKainKeGudang(kain);
 
       if (!res.success) {
         toast.error(res.message, { position: "top-center", duration: 1500 });
@@ -46,11 +45,14 @@ export default function KainCard({ kain, data, setData }) {
       }
 
       toast.info(res.message, { position: "top-center", duration: 1500 });
+
+      // OPTIMISTIC UI
       setData(
         data.map((kain) => {
           if (kain.id === id) {
             return {
               ...kain,
+              quanityRemaining: kain.quantity,
               status: "ARRIVED_AT_WAREHOUSE",
               time: {
                 ...kain.time,
@@ -62,7 +64,9 @@ export default function KainCard({ kain, data, setData }) {
           return kain;
         }),
       );
-    });
+    } finally {
+      closeLoading();
+    }
   };
 
   const STATUS_CONFIG = {
@@ -133,8 +137,6 @@ export default function KainCard({ kain, data, setData }) {
 
   return (
     <div className="rounded-2xl border border-gray-400 bg-white p-4 shadow-sm hover:shadow-md transition w-100">
-      <LoadingOverlay show={loadingHapus} text="Menghapus . . ." />
-      <LoadingOverlay show={loadingMove} text="Memindahkan . . ." />
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>

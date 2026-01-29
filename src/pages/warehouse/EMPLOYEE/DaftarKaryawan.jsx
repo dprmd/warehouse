@@ -1,11 +1,11 @@
-import { useNavigate } from "react-router-dom";
 import LoadingOverlay from "../../../components/LoadingOverlay";
 import { useKaryawan } from "../../../context/KaryawanContext";
+import { useModal } from "../../../components/ModalContext";
+import TambahKaryawan from "./TambahKaryawan";
 
 export default function DaftarKaryawan() {
-  const navigate = useNavigate();
-  const { data, loading } = useKaryawan();
-  const daftarKaryawan = data;
+  const { showModal, closeModal } = useModal();
+  const { data: daftarKaryawan, loading } = useKaryawan();
 
   return (
     <div className="px-8 py-6">
@@ -41,19 +41,18 @@ export default function DaftarKaryawan() {
         </ul>
       )}
       <div className="fixed right-5 bottom-5 flex justify-center items-center">
-        {daftarKaryawan?.length === 0 && (
-          <div className="mx-4">
-            <p className="text-xl font-bold">
-              Tambah Karyawan Di Sini <span className="text-2xl">👉</span>
-            </p>
-          </div>
-        )}
         <button
-          className="w-15 h-15 bg-green-600 rounded-full text-4xl text-gray-100 cursor-pointer"
+          className="w-10 h-10 bg-gray-600 rounded-full text-3xl text-gray-100 cursor-pointer"
           onClick={() => {
-            navigate("tambahKaryawan");
+            showModal({
+              id: "tambah-karyawan",
+              title: "Tambah Karyawan",
+              closeDisabled: true,
+              children: <TambahKaryawan closeModal={closeModal} />,
+            });
           }}
         >
+          {" "}
           +
         </button>
       </div>

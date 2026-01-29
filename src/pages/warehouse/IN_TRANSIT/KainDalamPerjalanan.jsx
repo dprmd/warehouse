@@ -25,10 +25,10 @@ export default function KainDalamPerjalanan() {
             Kain Yang Sedang Dalam Perjalanan
           </p>
           <ul className="my-5 flex gap-4 flex-wrap justify-center items-center">
-            {kainDalamPerjalanan?.map((nota) => (
+            {kainDalamPerjalanan?.map((kain) => (
               <KainCard
-                key={nota.id}
-                kain={nota}
+                key={kain.id}
+                kain={kain}
                 data={data}
                 setData={setData}
               />

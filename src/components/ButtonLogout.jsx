@@ -6,7 +6,7 @@ export default function ButtonLogout({ className }) {
   const handleLogout = () => {
     localStorage.removeItem("isUserHaveVisit");
     localStorage.removeItem("userId");
-    navigate("/");
+    navigate("/login");
   };
 
   return (

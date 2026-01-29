@@ -1,14 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useKain } from "../../../context/KainContext";
-import LoadingOverlay from "../../../components/LoadingOverlay";
-import {
-  formatNumber,
-  raw,
-  validateNumber,
-  withLoading,
-} from "../../../lib/function";
-import { beliKain } from "../../../services/firebase/warehouseService";
 import { toast } from "sonner";
 import {
   Button,
@@ -19,11 +9,14 @@ import {
   Label,
   SelectControlled,
 } from "../../../components/Form";
+import { useLoading } from "../../../components/LoadingContext";
+import { useKain } from "../../../context/KainContext";
+import { formatNumber, raw, validateNumber } from "../../../lib/function";
+import { beliKain } from "../../../services/firebase/warehouseService";
 
 export default function BeliKain({ closeModal }) {
-  const navigate = useNavigate();
-  const [loadingBeliKain, setLoadingBeliKain] = useState(false);
   const { data, setData } = useKain();
+  const { showLoading, closeLoading } = useLoading();
 
   const [form, setForm] = useState({
     namaKain: "",
@@ -36,24 +29,26 @@ export default function BeliKain({ closeModal }) {
   const updateForm = (key) => (value) =>
     setForm((prev) => ({ ...prev, [key]: value }));
 
-  const handleBeliKain = (e) => {
+  const handleBeliKain = async (e) => {
     e.preventDefault();
-    withLoading(setLoadingBeliKain, async () => {
-      const userId = localStorage.getItem("userId");
-      const notaPembelian = {
-        ownerId: userId,
-        namaKain: form.namaKain,
-        quantity: raw(form.quantity),
-        quantityType: form.quantityType,
-        from: form.from,
-        price: raw(form.price),
-        status: "IN_TRANSIT",
-        time: {
-          timeOfPurchase: new Date().getTime(),
-          updatedAt: new Date().getTime(),
-        },
-      };
 
+    const userId = localStorage.getItem("userId");
+    const notaPembelian = {
+      ownerId: userId,
+      namaKain: form.namaKain,
+      quantity: raw(form.quantity),
+      quantityType: form.quantityType,
+      from: form.from,
+      price: raw(form.price),
+      status: "IN_TRANSIT",
+      time: {
+        timeOfPurchase: new Date().getTime(),
+        updatedAt: new Date().getTime(),
+      },
+    };
+
+    try {
+      showLoading("Membeli . . .");
       const res = await beliKain(notaPembelian);
 
       if (!res.success) {
@@ -69,6 +64,8 @@ export default function BeliKain({ closeModal }) {
         position: "top-center",
         duration: 1500,
       });
+
+      // OPTIMISTIC UI
       setData([
         {
           ...notaPembelian,
@@ -77,7 +74,9 @@ export default function BeliKain({ closeModal }) {
         ...data,
       ]);
       closeModal();
-    });
+    } finally {
+      closeLoading();
+    }
   };
 
   const options = [
@@ -87,7 +86,6 @@ export default function BeliKain({ closeModal }) {
 
   return (
     <Form onSubmit={handleBeliKain}>
-      <LoadingOverlay show={loadingBeliKain} text="Menyimpan . . ." />
       <FormGroup>
         <Label htmlFor="namaKain">Nama Kain</Label>
         <InputControlled
@@ -124,7 +122,7 @@ export default function BeliKain({ closeModal }) {
         </div>
       </FormGroup>
       <FormGroup>
-        <Label htmlFor="namaTokoKain">Nama Toko Kain</Label>
+        <Label htmlFor="namaTokoKain">Toko Kain</Label>
         <InputControlled
           id="namaTokoKain"
           value={form.from}

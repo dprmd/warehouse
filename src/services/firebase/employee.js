@@ -1,4 +1,11 @@
-import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  getDocs,
+  query,
+  serverTimestamp,
+  where,
+} from "firebase/firestore";
 import { db } from "./firebase";
 
 export const tambahkanKaryawan = async (karyawanBaru) => {
@@ -6,7 +13,7 @@ export const tambahkanKaryawan = async (karyawanBaru) => {
     console.log("Operation : Create , Function Name :", tambahkanKaryawan.name);
     const ref = collection(db, "karyawan");
 
-    await addDoc(ref, karyawanBaru);
+    await addDoc(ref, { ...karyawanBaru, updatedAt: serverTimestamp() });
 
     return {
       success: true,
