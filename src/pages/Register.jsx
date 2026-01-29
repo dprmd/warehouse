@@ -16,7 +16,10 @@ export default function Register() {
 
     const result = await registerUser(usernameToko, password);
     if (!result.success) {
-      toast.error(result.message, { position: "top-center", duration: 1500 });
+      toast.error(result.message, {
+        position: "top-center",
+        duration: 1500,
+      });
     } else {
       localStorage.setItem("isUserHaveVisit", "Yes");
       await navigate("/");

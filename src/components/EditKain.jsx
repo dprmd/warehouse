@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { useKain } from "../context/KainContext";
-import { formatNumber, raw, validateNumber } from "../lib/function";
-import { updateKain } from "../services/firebase/warehouseService";
+import { useKain } from "@/context/KainContext";
+import { formatNumber, raw, validateNumber } from "@/lib/function";
+import { updateKain } from "@/services/firebase/warehouseService";
 import {
   Button,
   Form,
@@ -12,11 +12,11 @@ import {
   SelectControlled,
 } from "./Form";
 import { toast } from "sonner";
-import { useLoading } from "./LoadingContext";
+import { useUI } from "@/context/UIContext";
 
 export default function EditKain({ kain, closeModal }) {
   const { data, setData } = useKain();
-  const { showLoading, closeLoading } = useLoading();
+  const { showLoading, closeLoading } = useUI();
 
   const [form, setForm] = useState({
     namaKain: "",
@@ -55,12 +55,18 @@ export default function EditKain({ kain, closeModal }) {
       const res = await updateKain(kain.id, newKain);
 
       if (!res.success) {
-        toast.error(res.message, { position: "top-center", duration: 1500 });
+        toast.error(res.message, {
+          position: "top-center",
+          duration: 1500,
+        });
         closeModal();
         return;
       }
 
-      toast.info(res.message, { position: "top-center", duration: 1500 });
+      toast.info(res.message, {
+        position: "top-center",
+        duration: 1500,
+      });
       const listKainBaru = data.map((item) => {
         if (item.id === newKain.id) {
           return newKain;
@@ -146,9 +152,9 @@ export default function EditKain({ kain, closeModal }) {
       </FormGroup>
       <FormGroup className="flex-row justify-end">
         <Button variant="secondary" onClick={closeModal} type="button">
-          Tutup
+          Batalkan
         </Button>
-        <Button type="submit">Simpan</Button>
+        <Button type="submit">Konfirmasi</Button>
       </FormGroup>
     </Form>
   );

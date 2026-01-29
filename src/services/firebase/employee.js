@@ -1,6 +1,8 @@
 import {
   addDoc,
   collection,
+  deleteDoc,
+  doc,
   getDocs,
   query,
   serverTimestamp,
@@ -13,11 +15,12 @@ export const tambahkanKaryawan = async (karyawanBaru) => {
     console.log("Operation : Create , Function Name :", tambahkanKaryawan.name);
     const ref = collection(db, "karyawan");
 
-    await addDoc(ref, { ...karyawanBaru, updatedAt: serverTimestamp() });
+    const docId = await addDoc(ref, karyawanBaru);
 
     return {
       success: true,
       message: "Berhasil Menambahkan Karyawan",
+      idKaryawan: docId.id,
     };
   } catch (error) {
     return {
@@ -50,6 +53,25 @@ export const getDaftarKaryawan = async (ownerId) => {
     return {
       success: false,
       error,
+    };
+  }
+};
+
+export const hapusKaryawan = async (idKaryawan) => {
+  try {
+    console.log("Operation : Delete , Function Name :", hapusKaryawan.name);
+    const docRef = doc(db, "karyawan", idKaryawan);
+
+    await deleteDoc(docRef);
+
+    return {
+      success: true,
+      message: "Berhasil Menghapus Karyawan",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error.message,
     };
   }
 };

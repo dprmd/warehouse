@@ -1,5 +1,3 @@
-import { useLoading } from "../components/LoadingContext";
-
 export const normalizeString = (str) => {
   return str.trim().toLowerCase().replace(/\s+/g, " ");
 };

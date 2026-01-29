@@ -13,6 +13,7 @@ export default function Navbar() {
     { to: "kainDalamPerjalanan", label: "Kain Dalam Perjalanan" },
     { to: "kainDiGudang", label: "Kain Di Gudang" },
     { to: "daftarKaryawan", label: "Daftar Karyawan" },
+    { to: "daftarSupplier", label: "Supplier" },
   ];
 
   // close sidebar when click outside (mobile only)

@@ -8,15 +8,16 @@ import {
   InputControlled,
   Label,
   SelectControlled,
-} from "../../../components/Form";
-import { useLoading } from "../../../components/LoadingContext";
-import { useKain } from "../../../context/KainContext";
-import { formatNumber, raw, validateNumber } from "../../../lib/function";
-import { beliKain } from "../../../services/firebase/warehouseService";
+} from "@/components/Form";
+import { useUI } from "@/context/UIContext";
+import { useKain } from "@/context/KainContext";
+import { formatNumber, raw, validateNumber } from "@/lib/function";
+import { beliKain } from "@/services/firebase/warehouseService";
+import { serverTimestamp } from "firebase/firestore";
 
 export default function BeliKain({ closeModal }) {
   const { data, setData } = useKain();
-  const { showLoading, closeLoading } = useLoading();
+  const { showLoading, closeLoading } = useUI();
 
   const [form, setForm] = useState({
     namaKain: "",
@@ -43,7 +44,6 @@ export default function BeliKain({ closeModal }) {
       status: "IN_TRANSIT",
       time: {
         timeOfPurchase: new Date().getTime(),
-        updatedAt: new Date().getTime(),
       },
     };
 
@@ -146,9 +146,9 @@ export default function BeliKain({ closeModal }) {
       </FormGroup>
       <FormGroup className="flex-row justify-end">
         <Button variant="secondary" onClick={closeModal} type="button">
-          Tutup
+          Batalkan
         </Button>
-        <Button type="submit">Beli</Button>
+        <Button type="submit">Beli Sekarang</Button>
       </FormGroup>
     </Form>
   );

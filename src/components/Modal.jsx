@@ -14,6 +14,7 @@ const Modal = ({
   nextText,
   onNext,
   nextDisabled = false,
+  closeText,
   closeDisabled = false,
 }) => {
   useEffect(() => {
@@ -64,9 +65,9 @@ const Modal = ({
                 onClose();
                 setIsOpen(false);
               }}
-              className="rounded-lg border px-4 py-2 text-sm hover:bg-gray-100"
+              className="rounded-lg border px-4 py-2 text-sm bg-gray-200 text-gray-800 hover:bg-gray-300"
             >
-              Tutup
+              {closeText ? closeText : "Tutup"}
             </button>
           )}
 

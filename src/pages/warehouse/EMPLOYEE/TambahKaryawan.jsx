@@ -1,5 +1,3 @@
-import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 import {
   Button,
   Form,
@@ -7,17 +5,17 @@ import {
   InputControlled,
   Label,
   SelectControlled,
-} from "../../../components/Form";
-import { useLoading } from "../../../components/LoadingContext";
-import { useKaryawan } from "../../../context/KaryawanContext";
-import { tambahkanKaryawan } from "../../../services/firebase/employee";
+} from "@/components/Form";
+import { useUI } from "@/context/UIContext";
+import { useKaryawan } from "@/context/KaryawanContext";
+import { tambahkanKaryawan } from "@/services/firebase/employee";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function TambahKaryawan({ closeModal }) {
   const userId = localStorage.getItem("userId");
-  const navigate = useNavigate();
   const { data, setData } = useKaryawan();
-  const { showLoading, closeLoading } = useLoading();
+  const { showLoading, closeLoading } = useUI();
   const [form, setForm] = useState({
     namaKaryawan: "",
     typeKaryawan: "Penjahit",
@@ -55,9 +53,9 @@ export default function TambahKaryawan({ closeModal }) {
         duration: 1500,
       });
 
+      console.log(res.idKaryawan);
       // Optimistic UI
-      setData([...data, karyawanBaru]);
-      navigate("/daftarKaryawan");
+      setData([...data, { ...karyawanBaru, id: res.idKaryawan }]);
     } finally {
       closeModal();
       closeLoading();
@@ -92,9 +90,9 @@ export default function TambahKaryawan({ closeModal }) {
       </FormGroup>
       <FormGroup className="flex-row justify-end">
         <Button variant="secondary" onClick={closeModal} type="button">
-          Tutup
+          Batalkan
         </Button>
-        <Button type="submit">Simpan</Button>
+        <Button type="submit">Tambahkan</Button>
       </FormGroup>
     </Form>
   );

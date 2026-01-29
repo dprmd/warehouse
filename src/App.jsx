@@ -10,8 +10,8 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import KainDiGudang from "./pages/warehouse/ARRIVED_AT_WAREHOUSE/KainDiGudang";
 import DaftarKaryawan from "./pages/warehouse/EMPLOYEE/DaftarKaryawan";
-import TambahKaryawan from "./pages/warehouse/EMPLOYEE/TambahKaryawan";
 import KainDalamPerjalanan from "./pages/warehouse/IN_TRANSIT/KainDalamPerjalanan";
+import DaftarSupplier from "./pages/warehouse/SUPPLIERS/DaftarSupplier";
 
 const userId = localStorage.getItem("userId");
 
@@ -36,6 +36,10 @@ const router = createHashRouter([
       {
         path: "daftarKaryawan",
         children: [{ index: true, element: <DaftarKaryawan /> }],
+      },
+      {
+        path: "daftarSupplier",
+        children: [{ index: true, element: <DaftarSupplier /> }],
       },
 
       // Contoh nested route

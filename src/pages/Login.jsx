@@ -15,9 +15,15 @@ export default function Login() {
 
     const result = await loginUser(usernameToko, password);
     if (!result.success) {
-      toast.error(result.message, { position: "top-center", duration: 1500 });
+      toast.error(result.message, {
+        position: "top-center",
+        duration: 1500,
+      });
     } else {
-      toast.info(result.message, { position: "top-center", duration: 1500 });
+      toast.info(result.message, {
+        position: "top-center",
+        duration: 1500,
+      });
       localStorage.setItem("isUserHaveVisit", "Yes");
       await navigate("/");
       window.location.reload();

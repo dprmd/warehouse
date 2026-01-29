@@ -1,11 +1,12 @@
-import KainCard from "../../../components/KainCard";
-import LoadingOverlay from "../../../components/LoadingOverlay";
-import { useModal } from "../../../components/ModalContext";
-import { useKain } from "../../../context/KainContext";
+import KainCard from "@/components/KainCard";
+import LoadingOverlay from "@/components/LoadingOverlay";
+import { useUI } from "@/context/UIContext";
+import { useKain } from "@/context/KainContext";
 import BeliKain from "./BeliKain";
+import FloatingAddButton from "@/components/FloatingAddButton";
 
 export default function KainDalamPerjalanan() {
-  const { showModal, closeModal } = useModal();
+  const { showModal, closeModal } = useUI();
   const { data, setData, loading } = useKain();
   const kainDalamPerjalanan = data.filter(
     (kain) => kain.status === "IN_TRANSIT",
@@ -36,22 +37,17 @@ export default function KainDalamPerjalanan() {
           </ul>
         </div>
       )}
-      <div className="fixed right-5 bottom-5 flex justify-center items-center">
-        <button
-          className="w-10 h-10 bg-gray-600 rounded-full text-3xl text-gray-100 cursor-pointer"
-          onClick={() => {
-            showModal({
-              id: "beli-kain",
-              title: "Beli Kain",
-              closeDisabled: true,
-              children: <BeliKain closeModal={closeModal} />,
-            });
-          }}
-        >
-          {" "}
-          +
-        </button>
-      </div>
+      <FloatingAddButton
+        onClick={() => {
+          showModal({
+            id: "beli-kain",
+            title: "Beli Kain",
+            closeDisabled: true,
+            children: <BeliKain closeModal={closeModal} />,
+          });
+        }}
+        title="Beli Kain"
+      />
     </div>
   );
 }

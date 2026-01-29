@@ -5,14 +5,12 @@ import {
   pindahkanKainKeGudang,
 } from "../services/firebase/warehouseService";
 import EditKain from "./EditKain";
-import { useLoading } from "./LoadingContext";
-import { useModal } from "./ModalContext";
+import { useUI } from "@/context/UIContext";
 
 export default function KainCard({ kain, data, setData }) {
   const { id, namaKain, from, quantity, quantityType, price, status, time } =
     kain;
-  const { showModal, closeModal } = useModal();
-  const { showLoading, closeLoading } = useLoading();
+  const { showModal, closeModal, showLoading, closeLoading } = useUI();
 
   const handleHapusKain = async () => {
     try {
@@ -21,13 +19,19 @@ export default function KainCard({ kain, data, setData }) {
       const res = await hapusKain(id);
 
       if (!res.success) {
-        toast.error(res.message, { position: "top-center", duration: 1500 });
+        toast.error(res.message, {
+          position: "top-center",
+          duration: 1500,
+        });
         return;
       }
 
       // OPTIMISTIC UI
       setData(data.filter((kain) => kain.id !== id));
-      toast.info(res.message, { position: "top-center", duration: 1500 });
+      toast.info(res.message, {
+        position: "top-center",
+        duration: 1500,
+      });
     } finally {
       closeLoading();
     }
@@ -40,11 +44,17 @@ export default function KainCard({ kain, data, setData }) {
       const res = await pindahkanKainKeGudang(kain);
 
       if (!res.success) {
-        toast.error(res.message, { position: "top-center", duration: 1500 });
+        toast.error(res.message, {
+          position: "top-center",
+          duration: 1500,
+        });
         return;
       }
 
-      toast.info(res.message, { position: "top-center", duration: 1500 });
+      toast.info(res.message, {
+        position: "top-center",
+        duration: 1500,
+      });
 
       // OPTIMISTIC UI
       setData(
@@ -88,7 +98,8 @@ export default function KainCard({ kain, data, setData }) {
           id: "hapus-nota-pembelian",
           title: "Hapus",
           contentText: "Apakah Anda Yakin ?",
-          nextText: "Hapus",
+          nextText: "Konfirmasi",
+          closeText: "Batalkan",
           onNext: handleHapusKain,
         });
       },
@@ -98,6 +109,7 @@ export default function KainCard({ kain, data, setData }) {
           title: "Pindahkan Ke Gudang",
           contentText: "Apakah Anda Yakin ?",
           nextText: "Pindahkan",
+          closeText: "Batalkan",
           onNext: handlePindahkanKeGudang,
         });
       },
@@ -120,7 +132,8 @@ export default function KainCard({ kain, data, setData }) {
           id: "hapus-kain",
           title: "Hapus",
           contentText: "Apakah Anda Yakin ?",
-          nextText: "Hapus",
+          nextText: "Konfirmasi",
+          closeText: "Batalkan",
           onNext: handleHapusKain,
         });
       },
@@ -128,6 +141,7 @@ export default function KainCard({ kain, data, setData }) {
         showModal({
           id: "berikan-ke-tukang-potong",
           title: "Berikan Ke Tukang Potong",
+          closeText: "Batalkan",
           nextText: "Berikan",
         });
       },
@@ -148,13 +162,13 @@ export default function KainCard({ kain, data, setData }) {
         <div className="flex gap-2">
           <>
             <button
-              className="text-xs px-3 py-1 rounded-lg border hover:bg-gray-50 active:bg-gray-200"
+              className="border-gray-500 text-xs px-3 py-1 rounded-lg border hover:bg-gray-100 active:bg-gray-200"
               onClick={config.edit}
             >
               Edit
             </button>
             <button
-              className="text-xs px-3 py-1 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 active:bg-red-50"
+              className="text-xs px-3 py-1 rounded-lg border border-red-400 text-red-600 hover:bg-red-50 active:bg-red-50"
               onClick={config.hapus}
             >
               Hapus

@@ -1,32 +1,31 @@
 import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
-import { ModalProvider } from "../components/ModalContext";
-import { LoadingProvider } from "../components/LoadingContext";
 import { Toaster } from "@/components/ui/sonner";
+import { UIProvider } from "@/context/UIContext";
 
 export default function Layout() {
   const { pathname } = useLocation();
 
   if (pathname === "/register" || pathname === "/login") {
     return (
-      <LoadingProvider>
-        <ModalProvider>
+      <>
+        <UIProvider>
           <Outlet />
           <Toaster />
-        </ModalProvider>
-      </LoadingProvider>
+        </UIProvider>
+      </>
     );
   } else {
     return (
-      <LoadingProvider>
-        <ModalProvider>
+      <>
+        <UIProvider>
           <Toaster />
           <Navbar />
           <div className="md:ml-80 pt-12 md:pt-0">
             <Outlet />
           </div>
-        </ModalProvider>
-      </LoadingProvider>
+        </UIProvider>
+      </>
     );
   }
 }
