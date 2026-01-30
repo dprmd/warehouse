@@ -1,7 +1,3 @@
-import { useEffect, useState } from "react";
-import { useKain } from "@/context/KainContext";
-import { formatNumber, raw, validateNumber } from "@/lib/function";
-import { updateKain } from "@/services/firebase/warehouseService";
 import {
   Button,
   Form,
@@ -10,12 +6,16 @@ import {
   InputControlled,
   Label,
   SelectControlled,
-} from "./Form";
-import { toast } from "sonner";
+} from "@/components/ui/Form";
+import { useKain } from "@/context/KainContext";
 import { useUI } from "@/context/UIContext";
+import { formatNumber, raw, validateNumber } from "@/lib/function";
+import { createDocument } from "@/services/firebase/docService";
+import { useState } from "react";
+import { toast } from "sonner";
 
-export default function EditKain({ kain, closeModal }) {
-  const { data, setData } = useKain();
+export default function BeliKain({ closeModal }) {
+  const { data: listKainSekarang, setData: updateListKain } = useKain();
   const { showLoading, closeLoading } = useUI();
 
   const [form, setForm] = useState({
@@ -29,30 +29,31 @@ export default function EditKain({ kain, closeModal }) {
   const updateForm = (key) => (value) =>
     setForm((prev) => ({ ...prev, [key]: value }));
 
-  const handleEditKain = async (e) => {
+  const handleBeliKain = async (e) => {
     e.preventDefault();
 
-    const isSameKain = (oldData, newData) =>
-      JSON.stringify(oldData) === JSON.stringify(newData);
-
-    if (isSameKain(kain, { ...form, price: raw(form.price) })) {
-      closeModal();
-      toast.error("Tidak Ada Yang Di Ubah", {
-        position: "top-center",
-        duration: 1500,
-      });
-      return;
-    }
-
-    const newKain = {
-      ...kain,
-      ...form,
+    const userId = localStorage.getItem("userId");
+    const notaPembelian = {
+      ownerId: userId,
+      namaKain: form.namaKain,
+      quantity: raw(form.quantity),
+      quantityType: form.quantityType,
+      from: form.from,
       price: raw(form.price),
+      status: "IN_TRANSIT",
+      time: {
+        timeOfPurchase: Date.now(),
+      },
     };
 
     try {
-      showLoading("Menyimpan . . .");
-      const res = await updateKain(kain.id, newKain);
+      showLoading("Membeli . . .");
+      const res = await createDocument(
+        "Beli Kain",
+        "kain",
+        notaPembelian,
+        "Berhasil Membeli Kain",
+      );
 
       if (!res.success) {
         toast.error(res.message, {
@@ -67,23 +68,20 @@ export default function EditKain({ kain, closeModal }) {
         position: "top-center",
         duration: 1500,
       });
-      const listKainBaru = data.map((item) => {
-        if (item.id === newKain.id) {
-          return newKain;
-        }
 
-        return item;
-      });
-      setData(listKainBaru);
+      // OPTIMISTIC UI
+      updateListKain([
+        {
+          ...notaPembelian,
+          id: res.docId,
+        },
+        ...listKainSekarang,
+      ]);
       closeModal();
     } finally {
       closeLoading();
     }
   };
-
-  useEffect(() => {
-    setForm({ ...kain, price: formatNumber(kain.price) });
-  }, []);
 
   const options = [
     { label: "Roll", value: "Roll" },
@@ -91,7 +89,7 @@ export default function EditKain({ kain, closeModal }) {
   ];
 
   return (
-    <Form onSubmit={handleEditKain}>
+    <Form onSubmit={handleBeliKain}>
       <FormGroup>
         <Label htmlFor="namaKain">Nama Kain</Label>
         <InputControlled
@@ -100,7 +98,7 @@ export default function EditKain({ kain, closeModal }) {
           onChange={updateForm("namaKain")}
           placeholder="Nama Kain"
           required
-        />
+        ></InputControlled>
       </FormGroup>
       <FormGroup>
         <Label htmlFor="quantity">Berapa Banyak</Label>
@@ -128,14 +126,14 @@ export default function EditKain({ kain, closeModal }) {
         </div>
       </FormGroup>
       <FormGroup>
-        <Label htmlFor="namaTokoKain">Nama Toko Kain</Label>
+        <Label htmlFor="namaTokoKain">Toko Kain</Label>
         <InputControlled
           id="namaTokoKain"
           value={form.from}
           onChange={updateForm("from")}
           placeholder="Nama Toko Kain"
           required
-        />
+        ></InputControlled>
       </FormGroup>
       <FormGroup>
         <Label htmlFor="hargaKain">Total Pembelian</Label>
@@ -154,7 +152,7 @@ export default function EditKain({ kain, closeModal }) {
         <Button variant="secondary" onClick={closeModal} type="button">
           Batalkan
         </Button>
-        <Button type="submit">Konfirmasi</Button>
+        <Button type="submit">Beli Sekarang</Button>
       </FormGroup>
     </Form>
   );

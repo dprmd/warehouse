@@ -1,47 +1,47 @@
-import { toast } from "sonner";
-import { formatPrice, formatTanggalJamIndonesia } from "../lib/function";
-import {
-  hapusKain,
-  pindahkanKainKeGudang,
-} from "../services/firebase/warehouseService";
-import EditKain from "./EditKain";
+import { useKain } from "@/context/KainContext";
 import { useUI } from "@/context/UIContext";
+import { useChangeDocument } from "@/hooks/useChangeDocument";
+import { formatPrice, formatTanggalJamIndonesia } from "@/lib/function";
+import { updateDocument } from "@/services/firebase/docService";
+import { toast } from "sonner";
+import EditKain from "./EditKain";
 
-export default function KainCard({ kain, data, setData }) {
+export default function KainCard({ cardData }) {
   const { id, namaKain, from, quantity, quantityType, price, status, time } =
-    kain;
+    cardData;
   const { showModal, closeModal, showLoading, closeLoading } = useUI();
+  const { data: listKainSekarang, setData: updateListKain } = useKain();
+  const { hapusDocument } = useChangeDocument();
 
   const handleHapusKain = async () => {
-    try {
-      closeModal();
-      showLoading("Menghapus . . .");
-      const res = await hapusKain(id);
-
-      if (!res.success) {
-        toast.error(res.message, {
-          position: "top-center",
-          duration: 1500,
-        });
-        return;
-      }
-
-      // OPTIMISTIC UI
-      setData(data.filter((kain) => kain.id !== id));
-      toast.info(res.message, {
-        position: "top-center",
-        duration: 1500,
-      });
-    } finally {
-      closeLoading();
-    }
+    await hapusDocument(
+      "Menghapus . . .",
+      "Hapus Kain",
+      "kain",
+      id,
+      "Berhasil Menghapus Kain",
+      "kainContext",
+    );
   };
 
   const handlePindahkanKeGudang = async () => {
+    const updatedDocument = {
+      quanityRemaining: quantity,
+      status: "ARRIVED_AT_WAREHOUSE",
+      time: {
+        arrivalTime: Date.now(),
+      },
+    };
     try {
       closeModal();
       showLoading("Memindahkan . . .");
-      const res = await pindahkanKainKeGudang(kain);
+      const res = await updateDocument(
+        "Pindahkan Kain Ke Gudang",
+        "kain",
+        id,
+        updatedDocument,
+        "Berhasil Memindahkan Kain Ke Gudang",
+      );
 
       if (!res.success) {
         toast.error(res.message, {
@@ -57,16 +57,16 @@ export default function KainCard({ kain, data, setData }) {
       });
 
       // OPTIMISTIC UI
-      setData(
-        data.map((kain) => {
+      updateListKain(
+        listKainSekarang.map((kain) => {
           if (kain.id === id) {
             return {
-              ...kain,
-              quanityRemaining: kain.quantity,
+              ...cardData,
+              quanityRemaining: quantity,
               status: "ARRIVED_AT_WAREHOUSE",
               time: {
-                ...kain.time,
-                arrivalTime: new Date().getTime(),
+                ...cardData.time,
+                arrivalTime: Date.now(),
               },
             };
           }
@@ -90,7 +90,7 @@ export default function KainCard({ kain, data, setData }) {
           id: "edit-nota-pembelian",
           title: "Edit Nota Pembelian Kain",
           closeDisabled: true,
-          children: <EditKain kain={kain} closeModal={closeModal} />,
+          children: <EditKain kain={cardData} closeModal={closeModal} />,
         });
       },
       hapus: () => {
@@ -124,7 +124,7 @@ export default function KainCard({ kain, data, setData }) {
           id: "edit-kain",
           title: "Edit Kain",
           closeDisabled: true,
-          children: <EditKain kain={kain} closeModal={closeModal} />,
+          children: <EditKain kain={cardData} closeModal={closeModal} />,
         });
       },
       hapus: () => {

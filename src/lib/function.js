@@ -49,3 +49,6 @@ export const formatPrice = (price) =>
     style: "currency",
     currency: "IDR",
   }).format(price);
+
+export const isSameObject = (oldData, newData) =>
+  JSON.stringify(oldData) === JSON.stringify(newData);

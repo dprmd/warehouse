@@ -1,5 +1,5 @@
+import { getDocuments } from "@/services/firebase/docService";
 import { createContext, useContext, useEffect, useState } from "react";
-import { getDaftarKaryawan } from "../services/firebase/employee";
 
 const KaryawanContext = createContext();
 
@@ -10,12 +10,18 @@ export function KaryawanProvider({ ownerId, children }) {
 
   const fetchKaryawan = async () => {
     setLoading(true);
-    const karyawan = await getDaftarKaryawan(ownerId);
+    const karyawan = await getDocuments(
+      "Ambil List Karyawan",
+      "karyawan",
+      ownerId,
+    );
     if (karyawan.success) {
       setData(karyawan.data);
       setLoading(false);
     } else {
       setError(karyawan.error);
+      setLoading(false);
+      console.log(error);
     }
   };
 

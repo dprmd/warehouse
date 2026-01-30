@@ -1,5 +1,5 @@
+import { getUserById } from "@/services/firebase/userService";
 import { createContext, useContext, useEffect, useState } from "react";
-import { getUserById } from "../services/firebase/userService";
 
 const UserContext = createContext();
 
@@ -17,6 +17,7 @@ export function UserProvider({ ownerId, children }) {
     } else {
       setError(aUser.error);
       setLoading(false);
+      console.log(error);
     }
   };
 

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import ButtonLogout from "../components/ButtonLogout";
-import HamburgerMenuButton from "../components/HamburgerMenuButton";
+import ButtonLogout from "../components/ui/ButtonLogout";
+import HamburgerMenuButton from "../components/ui/HamburgerMenuButton";
 
 export default function Navbar() {
   const [navOpen, setNavOpen] = useState(false);

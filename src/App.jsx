@@ -1,5 +1,5 @@
 import { createHashRouter, RouterProvider } from "react-router-dom";
-import LoadingOverlay from "./components/LoadingOverlay";
+import LoadingOverlay from "./components/ui/LoadingOverlay";
 import { KainProvider } from "./context/KainContext";
 import { KaryawanProvider } from "./context/KaryawanContext";
 import { UserProvider } from "./context/UserContext";
@@ -12,6 +12,7 @@ import KainDiGudang from "./pages/warehouse/ARRIVED_AT_WAREHOUSE/KainDiGudang";
 import DaftarKaryawan from "./pages/warehouse/EMPLOYEE/DaftarKaryawan";
 import KainDalamPerjalanan from "./pages/warehouse/IN_TRANSIT/KainDalamPerjalanan";
 import DaftarSupplier from "./pages/warehouse/SUPPLIERS/DaftarSupplier";
+import { SupplierProvider } from "./context/SupplierContext";
 
 const userId = localStorage.getItem("userId");
 
@@ -56,12 +57,14 @@ const router = createHashRouter([
 
 export default function App() {
   return (
-    <KaryawanProvider ownerId={userId}>
-      <UserProvider ownerId={userId}>
-        <KainProvider ownerId={userId}>
-          <RouterProvider router={router} />
-        </KainProvider>
-      </UserProvider>
-    </KaryawanProvider>
+    <SupplierProvider ownerId={userId}>
+      <KaryawanProvider ownerId={userId}>
+        <UserProvider ownerId={userId}>
+          <KainProvider ownerId={userId}>
+            <RouterProvider router={router} />
+          </KainProvider>
+        </UserProvider>
+      </KaryawanProvider>
+    </SupplierProvider>
   );
 }

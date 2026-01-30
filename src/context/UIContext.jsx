@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from "react";
-import Modal from "@/components/Modal";
-import LoadingOverlay from "@/components/LoadingOverlay";
+import Modal from "@/components/ui/Modal";
+import LoadingOverlay from "@/components/ui/LoadingOverlay";
 
 const UIContext = createContext();
 

@@ -1,21 +1,25 @@
 import { getDocuments } from "@/services/firebase/docService";
 import { createContext, useContext, useEffect, useState } from "react";
 
-const KainContext = createContext();
+const SupplierContext = createContext();
 
-export function KainProvider({ ownerId, children }) {
+export function SupplierProvider({ ownerId, children }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchKain = async () => {
+  const fetchSupplier = async () => {
     setLoading(true);
-    const kain = await getDocuments("Ambil List Kain", "kain", ownerId);
-    if (kain.success) {
-      setData(kain.data);
+    const supplier = await getDocuments(
+      "Ambil List Supplier",
+      "supplier",
+      ownerId,
+    );
+    if (supplier.success) {
+      setData(supplier.data);
       setLoading(false);
     } else {
-      setError(kain.error);
+      setError(supplier.error);
       setLoading(false);
       console.log(error);
     }
@@ -23,23 +27,23 @@ export function KainProvider({ ownerId, children }) {
 
   useEffect(() => {
     if (ownerId) {
-      fetchKain();
+      fetchSupplier();
     }
   }, [ownerId]);
 
   return (
-    <KainContext.Provider
+    <SupplierContext.Provider
       value={{
         data,
         setData,
         loading,
         error,
-        refetch: fetchKain,
+        refetch: fetchSupplier,
       }}
     >
       {children}
-    </KainContext.Provider>
+    </SupplierContext.Provider>
   );
 }
 
-export const useKain = () => useContext(KainContext);
+export const useSupplier = () => useContext(SupplierContext);

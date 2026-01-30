@@ -5,20 +5,20 @@ import {
   InputControlled,
   Label,
   SelectControlled,
-} from "@/components/Form";
-import { useUI } from "@/context/UIContext";
+} from "@/components/ui/Form";
 import { useKaryawan } from "@/context/KaryawanContext";
-import { tambahkanKaryawan } from "@/services/firebase/employee";
+import { useUI } from "@/context/UIContext";
+import { createDocument } from "@/services/firebase/docService";
 import { useState } from "react";
 import { toast } from "sonner";
 
 export default function TambahKaryawan({ closeModal }) {
   const userId = localStorage.getItem("userId");
-  const { data, setData } = useKaryawan();
+  const { data: listKaryawan, setData: updateListKaryawan } = useKaryawan();
   const { showLoading, closeLoading } = useUI();
   const [form, setForm] = useState({
     namaKaryawan: "",
-    typeKaryawan: "Penjahit",
+    role: "Penjahit",
   });
 
   const updateForm = (key) => (value) =>
@@ -32,11 +32,16 @@ export default function TambahKaryawan({ closeModal }) {
     const karyawanBaru = {
       ownerId: userId,
       namaKaryawan: form.namaKaryawan,
-      typeKaryawan: form.typeKaryawan,
+      role: form.role,
     };
 
     try {
-      const res = await tambahkanKaryawan(karyawanBaru);
+      const res = await createDocument(
+        "Tambah Karyawan",
+        "karyawan",
+        karyawanBaru,
+        "Berhasil Menambahkan Karyawan",
+      );
 
       if (!res.success) {
         toast.error(res.message, {
@@ -53,9 +58,8 @@ export default function TambahKaryawan({ closeModal }) {
         duration: 1500,
       });
 
-      console.log(res.idKaryawan);
       // Optimistic UI
-      setData([...data, { ...karyawanBaru, id: res.idKaryawan }]);
+      updateListKaryawan([...listKaryawan, { ...karyawanBaru, id: res.docId }]);
     } finally {
       closeModal();
       closeLoading();
@@ -80,10 +84,10 @@ export default function TambahKaryawan({ closeModal }) {
         />
       </FormGroup>
       <FormGroup>
-        <Label htmlFor="typeKaryawan">Sebagai</Label>
+        <Label htmlFor="role">Sebagai</Label>
         <SelectControlled
-          value={form.typeKaryawan}
-          onChange={updateForm("typeKaryawan")}
+          value={form.role}
+          onChange={updateForm("role")}
           options={options}
           required
         />

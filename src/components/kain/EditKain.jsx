@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { toast } from "sonner";
+import { useChangeDocument } from "@/hooks/useChangeDocument";
+import { formatNumber, raw, validateNumber } from "@/lib/function";
+import { useEffect, useState } from "react";
 import {
   Button,
   Form,
@@ -8,17 +9,10 @@ import {
   InputControlled,
   Label,
   SelectControlled,
-} from "@/components/Form";
-import { useUI } from "@/context/UIContext";
-import { useKain } from "@/context/KainContext";
-import { formatNumber, raw, validateNumber } from "@/lib/function";
-import { beliKain } from "@/services/firebase/warehouseService";
-import { serverTimestamp } from "firebase/firestore";
+} from "../ui/Form";
 
-export default function BeliKain({ closeModal }) {
-  const { data, setData } = useKain();
-  const { showLoading, closeLoading } = useUI();
-
+export default function EditKain({ kain, closeModal }) {
+  const { editDocument } = useChangeDocument();
   const [form, setForm] = useState({
     namaKain: "",
     quantity: "",
@@ -30,54 +24,29 @@ export default function BeliKain({ closeModal }) {
   const updateForm = (key) => (value) =>
     setForm((prev) => ({ ...prev, [key]: value }));
 
-  const handleBeliKain = async (e) => {
+  const handleEditKain = async (e) => {
     e.preventDefault();
 
-    const userId = localStorage.getItem("userId");
-    const notaPembelian = {
-      ownerId: userId,
-      namaKain: form.namaKain,
-      quantity: raw(form.quantity),
-      quantityType: form.quantityType,
-      from: form.from,
+    const newKain = {
+      ...kain,
+      ...form,
       price: raw(form.price),
-      status: "IN_TRANSIT",
-      time: {
-        timeOfPurchase: new Date().getTime(),
-      },
     };
 
-    try {
-      showLoading("Membeli . . .");
-      const res = await beliKain(notaPembelian);
-
-      if (!res.success) {
-        toast.error(res.message, {
-          position: "top-center",
-          duration: 1500,
-        });
-        closeModal();
-        return;
-      }
-
-      toast.info(res.message, {
-        position: "top-center",
-        duration: 1500,
-      });
-
-      // OPTIMISTIC UI
-      setData([
-        {
-          ...notaPembelian,
-          id: res.id,
-        },
-        ...data,
-      ]);
-      closeModal();
-    } finally {
-      closeLoading();
-    }
+    editDocument(
+      kain,
+      newKain,
+      "Menyimpan . . .",
+      "Edit Kain",
+      "kain",
+      "Berhasil Mengedit Kain",
+      "kainContext",
+    );
   };
+
+  useEffect(() => {
+    setForm({ ...kain, price: formatNumber(kain.price) });
+  }, [kain]);
 
   const options = [
     { label: "Roll", value: "Roll" },
@@ -85,7 +54,7 @@ export default function BeliKain({ closeModal }) {
   ];
 
   return (
-    <Form onSubmit={handleBeliKain}>
+    <Form onSubmit={handleEditKain}>
       <FormGroup>
         <Label htmlFor="namaKain">Nama Kain</Label>
         <InputControlled
@@ -94,7 +63,7 @@ export default function BeliKain({ closeModal }) {
           onChange={updateForm("namaKain")}
           placeholder="Nama Kain"
           required
-        ></InputControlled>
+        />
       </FormGroup>
       <FormGroup>
         <Label htmlFor="quantity">Berapa Banyak</Label>
@@ -122,14 +91,14 @@ export default function BeliKain({ closeModal }) {
         </div>
       </FormGroup>
       <FormGroup>
-        <Label htmlFor="namaTokoKain">Toko Kain</Label>
+        <Label htmlFor="namaTokoKain">Nama Toko Kain</Label>
         <InputControlled
           id="namaTokoKain"
           value={form.from}
           onChange={updateForm("from")}
           placeholder="Nama Toko Kain"
           required
-        ></InputControlled>
+        />
       </FormGroup>
       <FormGroup>
         <Label htmlFor="hargaKain">Total Pembelian</Label>
@@ -148,7 +117,7 @@ export default function BeliKain({ closeModal }) {
         <Button variant="secondary" onClick={closeModal} type="button">
           Batalkan
         </Button>
-        <Button type="submit">Beli Sekarang</Button>
+        <Button type="submit">Konfirmasi</Button>
       </FormGroup>
     </Form>
   );

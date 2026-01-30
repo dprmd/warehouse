@@ -1,42 +1,22 @@
-import { useKaryawan } from "@/context/KaryawanContext";
+import EditKaryawan from "@/components/karyawan/EditKaryawan";
 import { useUI } from "@/context/UIContext";
-import { hapusKaryawan } from "@/services/firebase/employee";
-import { toast } from "sonner";
+import { useChangeDocument } from "@/hooks/useChangeDocument";
 
-export default function KaryawanCard({ id, nama, role, avatarUrl }) {
-  const { showLoading, closeLoading, showModal, closeModal } = useUI();
-  const { data, setData } = useKaryawan();
+export default function KaryawanCard({ cardData }) {
+  const { showModal, closeModal } = useUI();
+  const { id, namaKaryawan, role } = cardData;
+  const { hapusDocument } = useChangeDocument();
+  const avatarUrl = "/avatar.jpeg";
 
   const handleHapusKaryawan = async (e) => {
-    e.preventDefault();
-
-    showLoading("Menghapus Karyawan . . .");
-
-    try {
-      const res = await hapusKaryawan(id);
-
-      if (!res.success) {
-        toast.error(res.message, {
-          position: "top-center",
-          duration: 1500,
-        });
-        closeModal();
-        closeLoading();
-        return;
-      }
-
-      toast.info(res.message, {
-        position: "top-center",
-        duration: 1500,
-      });
-
-      // Optimistic UI
-      const listKaryawanBaru = data.filter((karyawan) => karyawan.id !== id);
-      setData(listKaryawanBaru);
-    } finally {
-      closeModal();
-      closeLoading();
-    }
+    await hapusDocument(
+      "Menghapus . . .",
+      "Hapus Karyawan",
+      "karyawan",
+      id,
+      "Berhasil Menghapus Karyawan",
+      "karyawanContext",
+    );
   };
   return (
     <div className="relative flex flex-col justify-center items-center gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md min-w-96">
@@ -45,19 +25,21 @@ export default function KaryawanCard({ id, nama, role, avatarUrl }) {
         {avatarUrl ? (
           <img
             src={avatarUrl}
-            alt={nama}
+            alt={namaKaryawan}
             className="h-full w-full object-cover"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-lg font-semibold text-gray-500">
-            {nama?.charAt(0)}
+            {namaKaryawan?.charAt(0)}
           </div>
         )}
       </div>
 
       {/* Info */}
       <div className="flex-1">
-        <h3 className="text-base font-semibold text-gray-800">{nama}</h3>
+        <h3 className="text-base font-semibold text-gray-800">
+          {namaKaryawan}
+        </h3>
       </div>
 
       {/* Role */}
@@ -69,7 +51,19 @@ export default function KaryawanCard({ id, nama, role, avatarUrl }) {
 
       {/* Actions */}
       <div className="ml-2 flex gap-2">
-        <button className="rounded-lg border border-blue-500 px-2 py-1 text-sm font-medium text-blue-500 transition hover:bg-blue-50">
+        <button
+          className="rounded-lg border border-blue-500 px-2 py-1 text-sm font-medium text-blue-500 transition hover:bg-blue-50"
+          onClick={() => {
+            showModal({
+              id: "edit-karyawan",
+              title: "Edit Informasi Karyawan",
+              closeDisabled: true,
+              children: (
+                <EditKaryawan karyawan={cardData} closeModal={closeModal} />
+              ),
+            });
+          }}
+        >
           Edit
         </button>
         <button

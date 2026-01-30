@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import LoadingOverlay from "../components/LoadingOverlay";
+import LoadingOverlay from "../components/ui/LoadingOverlay";
 import { useUser } from "../context/UserContext";
 import { useKain } from "../context/KainContext";
 import { useKaryawan } from "../context/KaryawanContext";
