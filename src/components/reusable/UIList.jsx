@@ -8,7 +8,7 @@ export default function UIList({ data, loading, messageOnZeroData, Card }) {
         <p className="text-center text-2xl font-black">{messageOnZeroData}</p>
       )}
       {!loading && data?.length > 0 && (
-        <ul className="flex justify-center items-center flex-wrap gap-4">
+        <ul className="flex justify-center md:justify-start items-center flex-wrap gap-4">
           {data?.map((item) => (
             <Card key={item.id} cardData={item} />
           ))}

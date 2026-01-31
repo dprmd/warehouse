@@ -1,17 +1,18 @@
-import { useKain } from "@/context/KainContext";
+import { useSupplier } from "@/context/SupplierContext";
 import { useUI } from "@/context/UIContext";
 import { useChangeDocument } from "@/hooks/useChangeDocument";
 import { formatPrice, formatTanggalJamIndonesia } from "@/lib/function";
-import { updateDocument } from "@/services/firebase/docService";
-import { toast } from "sonner";
 import EditKain from "./EditKain";
+import { useEffect } from "react";
+import { useState } from "react";
 
 export default function KainCard({ cardData }) {
   const { id, namaKain, from, quantity, quantityType, price, status, time } =
     cardData;
-  const { showModal, closeModal, showLoading, closeLoading } = useUI();
-  const { data: listKainSekarang, setData: updateListKain } = useKain();
-  const { hapusDocument } = useChangeDocument();
+  const { showModal, closeModal } = useUI();
+  const { data: currentSupplier, loading } = useSupplier();
+  const [supplierName, setSupplierName] = useState("");
+  const { hapusDocument, editDocument } = useChangeDocument();
 
   const handleHapusKain = async () => {
     await hapusDocument(
@@ -26,58 +27,37 @@ export default function KainCard({ cardData }) {
 
   const handlePindahkanKeGudang = async () => {
     const updatedDocument = {
+      ...cardData,
       quanityRemaining: quantity,
       status: "ARRIVED_AT_WAREHOUSE",
       time: {
+        ...time,
         arrivalTime: Date.now(),
       },
     };
-    try {
-      closeModal();
-      showLoading("Memindahkan . . .");
-      const res = await updateDocument(
-        "Pindahkan Kain Ke Gudang",
-        "kain",
-        id,
-        updatedDocument,
-        "Berhasil Memindahkan Kain Ke Gudang",
-      );
 
-      if (!res.success) {
-        toast.error(res.message, {
-          position: "top-center",
-          duration: 1500,
-        });
-        return;
-      }
-
-      toast.info(res.message, {
-        position: "top-center",
-        duration: 1500,
-      });
-
-      // OPTIMISTIC UI
-      updateListKain(
-        listKainSekarang.map((kain) => {
-          if (kain.id === id) {
-            return {
-              ...cardData,
-              quanityRemaining: quantity,
-              status: "ARRIVED_AT_WAREHOUSE",
-              time: {
-                ...cardData.time,
-                arrivalTime: Date.now(),
-              },
-            };
-          }
-
-          return kain;
-        }),
-      );
-    } finally {
-      closeLoading();
-    }
+    await editDocument(
+      {},
+      updatedDocument,
+      "Memindahkan . . .",
+      "Pindahkan Kain Ke Gudang",
+      "kain",
+      "Berhasil Memindahkan Kain Ke Gudang",
+      "kainContext",
+      true,
+    );
   };
+
+  useEffect(() => {
+    if (!loading) {
+      const fromObj = currentSupplier.find((item) => item.id === from);
+      if (fromObj) {
+        setSupplierName(fromObj.supplierName);
+      } else {
+        setSupplierName("Supplier Telah Di Hapus");
+      }
+    }
+  }, [loading, cardData]);
 
   const STATUS_CONFIG = {
     IN_TRANSIT: {
@@ -155,7 +135,7 @@ export default function KainCard({ cardData }) {
       <div className="flex justify-between items-start">
         <div>
           <h3 className="text-lg font-semibold truncate w-60">{namaKain}</h3>
-          <p className="text-sm text-gray-500">{from}</p>
+          <p className="text-sm text-gray-500">{supplierName}</p>
         </div>
 
         {/* Action Buttons */}

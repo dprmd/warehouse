@@ -3,7 +3,11 @@ import { useKaryawan } from "@/context/KaryawanContext";
 import { useSupplier } from "@/context/SupplierContext";
 import { useUI } from "@/context/UIContext";
 import { isSameObject } from "@/lib/function";
-import { deleteDocument, updateDocument } from "@/services/firebase/docService";
+import {
+  createDocument,
+  deleteDocument,
+  updateDocument,
+} from "@/services/firebase/docService";
 import { toast } from "sonner";
 
 export const useChangeDocument = () => {
@@ -35,14 +39,17 @@ export const useChangeDocument = () => {
     collectionName,
     messageOnSucces,
     contextName,
+    skipOldDoc = false,
   ) => {
-    if (isSameObject(oldDoc, newDoc)) {
-      closeModal();
-      toast.error("Tidak Ada Yang Di Ubah", {
-        position: "top-center",
-        duration: 1500,
-      });
-      return;
+    if (!skipOldDoc) {
+      if (isSameObject(oldDoc, newDoc)) {
+        closeModal();
+        toast.error("Tidak Ada Yang Di Ubah", {
+          position: "top-center",
+          duration: 1500,
+        });
+        return;
+      }
     }
 
     try {
@@ -122,8 +129,61 @@ export const useChangeDocument = () => {
     }
   };
 
+  const tambahDocument = async (
+    loadingText,
+    operationName,
+    collectionName,
+    newDocument,
+    messageOnSucces,
+    contextName,
+    placement,
+  ) => {
+    try {
+      showLoading(loadingText);
+      const res = await createDocument(
+        operationName,
+        collectionName,
+        newDocument,
+        messageOnSucces,
+      );
+
+      if (!res.success) {
+        toast.error(res.message, {
+          position: "top-center",
+          duration: 1500,
+        });
+        closeModal();
+        return;
+      }
+
+      toast.info(res.message, {
+        position: "top-center",
+        duration: 1500,
+      });
+
+      // OPTIMISTIC UI
+      if (placement === "upper") {
+        context[contextName].updateData([
+          { ...newDocument, id: res.docId },
+          ...context[contextName].currentData,
+        ]);
+      }
+
+      if (placement === "lower") {
+        context[contextName].updateData([
+          ...context[contextName].currentData,
+          { ...newDocument, id: res.docId },
+        ]);
+      }
+      closeModal();
+    } finally {
+      closeLoading();
+    }
+  };
+
   return {
     editDocument,
     hapusDocument,
+    tambahDocument,
   };
 };

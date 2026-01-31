@@ -42,7 +42,7 @@ export default function SupplierCard({ cardData }) {
       )}
 
       {/* Catatan */}
-      {note && (
+      {note.replaceAll(" ", "") && (
         <div className="mt-2 flex items-start gap-2 text-sm italic text-gray-500">
           <i className="bi bi-journal-text mt-0.5 text-gray-400"></i>
           <p className="line-clamp-2">“{note}”</p>

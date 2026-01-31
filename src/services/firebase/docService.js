@@ -4,6 +4,7 @@ import {
   deleteDoc,
   doc,
   getDocs,
+  orderBy,
   query,
   serverTimestamp,
   setDoc,
@@ -22,6 +23,7 @@ export const createDocument = async (
     const docRef = await addDoc(collection(db, collectionName), {
       ...document,
       createdAt: serverTimestamp(),
+      createdAtMs: Date.now(),
     });
 
     return {
@@ -86,12 +88,23 @@ export const updateDocument = async (
   }
 };
 
-export const getDocuments = async (operationName, collectionName, ownerId) => {
+export const getDocuments = async (
+  operationName,
+  collectionName,
+  ownerId,
+  order,
+) => {
+  const orderChoice = {
+    newToOld: "desc",
+    oldToNew: "asc",
+  };
+
   try {
     console.log(`Operation : Read , Operation Name : ${operationName}`);
     const q = query(
       collection(db, collectionName),
       where("ownerId", "==", ownerId),
+      orderBy("createdAtMs", orderChoice[order]),
     );
 
     const snapshot = await getDocs(q);

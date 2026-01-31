@@ -6,16 +6,13 @@ import {
   Label,
   SelectControlled,
 } from "@/components/ui/Form";
-import { useKaryawan } from "@/context/KaryawanContext";
-import { useUI } from "@/context/UIContext";
-import { createDocument } from "@/services/firebase/docService";
+import { useChangeDocument } from "@/hooks/useChangeDocument";
 import { useState } from "react";
-import { toast } from "sonner";
 
 export default function TambahKaryawan({ closeModal }) {
   const userId = localStorage.getItem("userId");
-  const { data: listKaryawan, setData: updateListKaryawan } = useKaryawan();
-  const { showLoading, closeLoading } = useUI();
+  const { tambahDocument } = useChangeDocument();
+
   const [form, setForm] = useState({
     namaKaryawan: "",
     role: "Penjahit",
@@ -27,43 +24,21 @@ export default function TambahKaryawan({ closeModal }) {
   const handleTambahkanKaryawan = async (e) => {
     e.preventDefault();
 
-    showLoading("Menambahkan Karyawan . . .");
-
     const karyawanBaru = {
       ownerId: userId,
       namaKaryawan: form.namaKaryawan,
       role: form.role,
     };
 
-    try {
-      const res = await createDocument(
-        "Tambah Karyawan",
-        "karyawan",
-        karyawanBaru,
-        "Berhasil Menambahkan Karyawan",
-      );
-
-      if (!res.success) {
-        toast.error(res.message, {
-          position: "top-center",
-          duration: 1500,
-        });
-        closeModal();
-        closeLoading();
-        return;
-      }
-
-      toast.info(res.message, {
-        position: "top-center",
-        duration: 1500,
-      });
-
-      // Optimistic UI
-      updateListKaryawan([...listKaryawan, { ...karyawanBaru, id: res.docId }]);
-    } finally {
-      closeModal();
-      closeLoading();
-    }
+    await tambahDocument(
+      "Menambahkan . . .",
+      "Tambah Karyawan",
+      "karyawan",
+      karyawanBaru,
+      "Berhasil Menambahkan Karyawan",
+      "karyawanContext",
+      "upper",
+    );
   };
 
   const options = [

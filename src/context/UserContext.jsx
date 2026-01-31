@@ -17,7 +17,7 @@ export function UserProvider({ ownerId, children }) {
     } else {
       setError(aUser.error);
       setLoading(false);
-      console.log(error);
+      console.log(aUser.error);
     }
   };
 

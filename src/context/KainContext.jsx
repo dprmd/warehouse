@@ -10,14 +10,19 @@ export function KainProvider({ ownerId, children }) {
 
   const fetchKain = async () => {
     setLoading(true);
-    const kain = await getDocuments("Ambil List Kain", "kain", ownerId);
+    const kain = await getDocuments(
+      "Ambil List Kain",
+      "kain",
+      ownerId,
+      "newToOld",
+    );
     if (kain.success) {
       setData(kain.data);
       setLoading(false);
     } else {
       setError(kain.error);
       setLoading(false);
-      console.log(error);
+      console.log(kain.error);
     }
   };
 

@@ -10,9 +10,11 @@ import {
   Label,
   SelectControlled,
 } from "../ui/Form";
+import { useSupplier } from "@/context/SupplierContext";
 
 export default function EditKain({ kain, closeModal }) {
   const { editDocument } = useChangeDocument();
+  const { data: currentSupplier } = useSupplier();
   const [form, setForm] = useState({
     namaKain: "",
     quantity: "",
@@ -33,7 +35,7 @@ export default function EditKain({ kain, closeModal }) {
       price: raw(form.price),
     };
 
-    editDocument(
+    await editDocument(
       kain,
       newKain,
       "Menyimpan . . .",
@@ -52,6 +54,13 @@ export default function EditKain({ kain, closeModal }) {
     { label: "Roll", value: "Roll" },
     { label: "Yard", value: "Yard" },
   ];
+
+  const supplierOptions = currentSupplier.map((item) => {
+    return {
+      label: item.supplierName,
+      value: item.id,
+    };
+  });
 
   return (
     <Form onSubmit={handleEditKain}>
@@ -92,13 +101,26 @@ export default function EditKain({ kain, closeModal }) {
       </FormGroup>
       <FormGroup>
         <Label htmlFor="namaTokoKain">Nama Toko Kain</Label>
-        <InputControlled
-          id="namaTokoKain"
-          value={form.from}
-          onChange={updateForm("from")}
-          placeholder="Nama Toko Kain"
-          required
-        />
+        {supplierOptions.length > 0 ? (
+          <SelectControlled
+            value={form.from}
+            onChange={updateForm("from")}
+            options={supplierOptions}
+            required
+          />
+        ) : (
+          <>
+            <SelectControlled
+              value={form.from}
+              onChange={updateForm("from")}
+              options={[{ label: "Tidak Ada Supplier", value: "" }]}
+              required
+            />
+            <p className="text-red-500">
+              Mohon Tambah Supplier di menu Supplier
+            </p>
+          </>
+        )}
       </FormGroup>
       <FormGroup>
         <Label htmlFor="hargaKain">Total Pembelian</Label>

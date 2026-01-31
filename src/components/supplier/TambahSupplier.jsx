@@ -6,16 +6,13 @@ import {
   Label,
   Textarea,
 } from "@/components/ui/Form";
-import { useSupplier } from "@/context/SupplierContext";
-import { useUI } from "@/context/UIContext";
-import { createDocument } from "@/services/firebase/docService";
+import { useChangeDocument } from "@/hooks/useChangeDocument";
 import { useState } from "react";
-import { toast } from "sonner";
 
 export default function TambahSupplier({ closeModal }) {
   const userId = localStorage.getItem("userId");
-  const { showLoading, closeLoading } = useUI();
-  const { data: listSupplier, setData: updateListSupplier } = useSupplier();
+  const { tambahDocument } = useChangeDocument();
+
   const [form, setForm] = useState({
     supplierName: "",
     phoneNumber: "",
@@ -29,8 +26,6 @@ export default function TambahSupplier({ closeModal }) {
   const handleTambahSupplier = async (e) => {
     e.preventDefault();
 
-    showLoading("Menambahkan Supplier . . .");
-
     const newSupplier = {
       ownerId: userId,
       supplierName: form.supplierName,
@@ -39,35 +34,15 @@ export default function TambahSupplier({ closeModal }) {
       note: form.note,
     };
 
-    try {
-      const res = await createDocument(
-        "Tambah Supplier Baru",
-        "supplier",
-        newSupplier,
-        "Berhasil Menambahkan Supplier Baru",
-      );
-
-      if (!res.success) {
-        toast.error(res.message, {
-          position: "top-center",
-          duration: 1500,
-        });
-        closeModal();
-        closeLoading();
-        return;
-      }
-
-      toast.info(res.message, {
-        position: "top-center",
-        duration: 1500,
-      });
-
-      // Optimistic UI
-      updateListSupplier([...listSupplier, { ...newSupplier, id: res.docId }]);
-    } finally {
-      closeModal();
-      closeLoading();
-    }
+    await tambahDocument(
+      "Menambahkan . . .",
+      "Tambah Supplier",
+      "supplier",
+      newSupplier,
+      "Berhasil Menambahkan Supplier",
+      "supplierContext",
+      "lower",
+    );
   };
 
   return (
@@ -104,13 +79,14 @@ export default function TambahSupplier({ closeModal }) {
         />
       </FormGroup>
       <FormGroup>
-        <Label htmlFor="catatan">Catatan</Label>
+        <Label htmlFor="catatan">
+          Catatan <span className="text-xs">(opsional)</span>
+        </Label>
         <Textarea
           id="catatan"
           placeholder="Catatan . . ."
           value={form.note}
           onChange={updateForm("note")}
-          required
         />
       </FormGroup>
       <FormGroup className="flex-row justify-end">

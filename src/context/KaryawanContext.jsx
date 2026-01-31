@@ -14,6 +14,7 @@ export function KaryawanProvider({ ownerId, children }) {
       "Ambil List Karyawan",
       "karyawan",
       ownerId,
+      "newToOld",
     );
     if (karyawan.success) {
       setData(karyawan.data);
@@ -21,7 +22,7 @@ export function KaryawanProvider({ ownerId, children }) {
     } else {
       setError(karyawan.error);
       setLoading(false);
-      console.log(error);
+      console.log(karyawan.error);
     }
   };
 

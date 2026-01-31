@@ -14,6 +14,7 @@ export function SupplierProvider({ ownerId, children }) {
       "Ambil List Supplier",
       "supplier",
       ownerId,
+      "oldToNew",
     );
     if (supplier.success) {
       setData(supplier.data);
@@ -21,7 +22,7 @@ export function SupplierProvider({ ownerId, children }) {
     } else {
       setError(supplier.error);
       setLoading(false);
-      console.log(error);
+      console.log(supplier.error);
     }
   };
 

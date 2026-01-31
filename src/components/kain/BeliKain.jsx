@@ -7,16 +7,15 @@ import {
   Label,
   SelectControlled,
 } from "@/components/ui/Form";
-import { useKain } from "@/context/KainContext";
-import { useUI } from "@/context/UIContext";
+import { useSupplier } from "@/context/SupplierContext";
+import { useChangeDocument } from "@/hooks/useChangeDocument";
 import { formatNumber, raw, validateNumber } from "@/lib/function";
-import { createDocument } from "@/services/firebase/docService";
+import { useEffect } from "react";
 import { useState } from "react";
-import { toast } from "sonner";
 
 export default function BeliKain({ closeModal }) {
-  const { data: listKainSekarang, setData: updateListKain } = useKain();
-  const { showLoading, closeLoading } = useUI();
+  const { tambahDocument } = useChangeDocument();
+  const { data: currentSupplier } = useSupplier();
 
   const [form, setForm] = useState({
     namaKain: "",
@@ -46,47 +45,34 @@ export default function BeliKain({ closeModal }) {
       },
     };
 
-    try {
-      showLoading("Membeli . . .");
-      const res = await createDocument(
-        "Beli Kain",
-        "kain",
-        notaPembelian,
-        "Berhasil Membeli Kain",
-      );
-
-      if (!res.success) {
-        toast.error(res.message, {
-          position: "top-center",
-          duration: 1500,
-        });
-        closeModal();
-        return;
-      }
-
-      toast.info(res.message, {
-        position: "top-center",
-        duration: 1500,
-      });
-
-      // OPTIMISTIC UI
-      updateListKain([
-        {
-          ...notaPembelian,
-          id: res.docId,
-        },
-        ...listKainSekarang,
-      ]);
-      closeModal();
-    } finally {
-      closeLoading();
-    }
+    await tambahDocument(
+      "Membeli Kain . . .",
+      "Beli Kain",
+      "kain",
+      notaPembelian,
+      "Berhasil Membeli Kain",
+      "kainContext",
+      "upper",
+    );
   };
 
   const options = [
     { label: "Roll", value: "Roll" },
     { label: "Yard", value: "Yard" },
   ];
+
+  const supplierOptions = currentSupplier.map((item) => {
+    return {
+      label: item.supplierName,
+      value: item.id,
+    };
+  });
+
+  useEffect(() => {
+    if (currentSupplier.length > 0) {
+      setForm({ ...form, from: currentSupplier[0].id });
+    }
+  }, [currentSupplier]);
 
   return (
     <Form onSubmit={handleBeliKain}>
@@ -127,13 +113,26 @@ export default function BeliKain({ closeModal }) {
       </FormGroup>
       <FormGroup>
         <Label htmlFor="namaTokoKain">Toko Kain</Label>
-        <InputControlled
-          id="namaTokoKain"
-          value={form.from}
-          onChange={updateForm("from")}
-          placeholder="Nama Toko Kain"
-          required
-        ></InputControlled>
+        {supplierOptions.length > 0 ? (
+          <SelectControlled
+            value={form.from}
+            onChange={updateForm("from")}
+            options={supplierOptions}
+            required
+          />
+        ) : (
+          <>
+            <SelectControlled
+              value={form.from}
+              onChange={updateForm("from")}
+              options={[{ label: "Tidak Ada Supplier", value: "" }]}
+              required
+            />
+            <p className="text-red-500">
+              Mohon Tambah Supplier di menu Supplier
+            </p>
+          </>
+        )}
       </FormGroup>
       <FormGroup>
         <Label htmlFor="hargaKain">Total Pembelian</Label>
@@ -152,7 +151,13 @@ export default function BeliKain({ closeModal }) {
         <Button variant="secondary" onClick={closeModal} type="button">
           Batalkan
         </Button>
-        <Button type="submit">Beli Sekarang</Button>
+        <Button
+          type="submit"
+          disabled={supplierOptions.length === 0}
+          variant={supplierOptions.length === 0 ? "disabled" : "primary"}
+        >
+          Beli Sekarang
+        </Button>
       </FormGroup>
     </Form>
   );

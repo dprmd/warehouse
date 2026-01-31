@@ -28,7 +28,7 @@ export default function EditKaryawan({ karyawan, closeModal }) {
       ...form,
     };
 
-    editDocument(
+    await editDocument(
       karyawan,
       newKaryawan,
       "Menyimpan . . .",
