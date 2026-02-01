@@ -8,6 +8,8 @@ export default function KainDiGudang() {
     (kain) => kain.status === "ARRIVED_AT_WAREHOUSE",
   );
 
+  console.log(JSON.stringify(kainDiGudang[0]));
+
   return (
     <div className="px-8 py-3">
       <UIList

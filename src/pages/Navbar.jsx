@@ -43,7 +43,7 @@ export default function Navbar() {
       <nav className="fixed top-0 left-0 z-50 h-12 w-full px-4 border-b border-b-gray-300 bg-white flex items-center md:hidden">
         <HamburgerMenuButton
           open={navOpen}
-          onToggle={(e) => {
+          onToggle={() => {
             setNavOpen(!navOpen);
           }}
           ref={hamburgerRef}

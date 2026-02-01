@@ -98,7 +98,9 @@ export default function KainCard({ cardData }) {
       label: "ARRIVED AT WAREHOUSE",
       statusStyle: "bg-green-100 text-green-700",
       buttonStyle: "bg-blue-600 text-white hover:bg-blue-700",
+      secondaryButtonStyle: "bg-orange-600 text-white hover:bg-orange-700",
       primaryActionText: "Potong",
+      secondaryActionText: "Gabungkan",
       edit: () => {
         showModal({
           id: "edit-kain",
@@ -173,16 +175,28 @@ export default function KainCard({ cardData }) {
           {config.label}
         </span>
 
-        <div className="flex items-center gap-3">
-          <button
-            className={`text-xs px-3 py-1 rounded-lg ${config.buttonStyle}`}
-            onClick={config.next}
-          >
-            <>
+        <div className="flex flex-col gap-y-1">
+          <div className="flex gap-3 text-left">
+            <button
+              className={`w-full text-xs px-3 py-1 rounded-md ${config.buttonStyle}`}
+              onClick={config.next}
+            >
               <span className="bi bi-house-check-fill mr-2"></span>
               {config.primaryActionText}
-            </>
-          </button>
+            </button>
+          </div>
+
+          {config.secondaryActionText && (
+            <div className="flex gap-3">
+              <button
+                className={`w-full text-xs px-3 py-1 rounded-md ${config.secondaryButtonStyle}`}
+                onClick={config.next}
+              >
+                <span className="bi bi-intersect mr-2"></span>
+                {config.secondaryActionText}
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
