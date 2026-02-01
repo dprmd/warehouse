@@ -3,6 +3,7 @@ import { useChangeDocument } from "@/hooks/useChangeDocument";
 import EditSupplier from "./EditSupplier";
 
 export default function SupplierCard({ cardData }) {
+  if (!cardData) return null;
   const { showModal, closeModal } = useUI();
   const { hapusDocument } = useChangeDocument();
   const { id, supplierName, phoneNumber, address, note } = cardData;
@@ -19,7 +20,7 @@ export default function SupplierCard({ cardData }) {
   };
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md min-w-100">
+    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md min-w-96">
       {/* Header */}
       <div className="flex items-start justify-between">
         <h3 className="text-lg font-semibold text-gray-800">{supplierName}</h3>

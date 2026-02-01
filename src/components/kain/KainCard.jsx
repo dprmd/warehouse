@@ -2,15 +2,17 @@ import { useSupplier } from "@/context/SupplierContext";
 import { useUI } from "@/context/UIContext";
 import { useChangeDocument } from "@/hooks/useChangeDocument";
 import { formatPrice, formatTanggalJamIndonesia } from "@/lib/function";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import EditKain from "./EditKain";
-import { useEffect } from "react";
-import { useState } from "react";
 
 export default function KainCard({ cardData }) {
+  if (!cardData) return null;
+  const navigate = useNavigate();
   const { id, namaKain, from, quantity, quantityType, price, status, time } =
     cardData;
   const { showModal, closeModal } = useUI();
-  const { data: currentSupplier, loading } = useSupplier();
+  const { data: currentSupplier } = useSupplier();
   const [supplierName, setSupplierName] = useState("");
   const { hapusDocument, editDocument } = useChangeDocument();
 
@@ -48,23 +50,13 @@ export default function KainCard({ cardData }) {
     );
   };
 
-  useEffect(() => {
-    if (!loading) {
-      const fromObj = currentSupplier.find((item) => item.id === from);
-      if (fromObj) {
-        setSupplierName(fromObj.supplierName);
-      } else {
-        setSupplierName("Supplier Telah Di Hapus");
-      }
-    }
-  }, [loading, cardData]);
-
   const STATUS_CONFIG = {
     IN_TRANSIT: {
       label: "IN TRANSIT",
       statusStyle: "bg-orange-100 text-orange-700",
       buttonStyle: "bg-green-600 text-white hover:bg-green-700",
       primaryActionText: "Sampai Di Gudang",
+      primaryIcon: "bi bi-house-check-fill",
       edit: () => {
         showModal({
           id: "edit-nota-pembelian",
@@ -100,6 +92,7 @@ export default function KainCard({ cardData }) {
       buttonStyle: "bg-blue-600 text-white hover:bg-blue-700",
       secondaryButtonStyle: "bg-orange-600 text-white hover:bg-orange-700",
       primaryActionText: "Potong",
+      primaryIcon: "bi bi-scissors",
       secondaryActionText: "Gabungkan",
       edit: () => {
         showModal({
@@ -127,12 +120,25 @@ export default function KainCard({ cardData }) {
           nextText: "Berikan",
         });
       },
+      secondaryNext: () => {
+        navigate(`mergeKain/${id}`);
+      },
     },
   };
   const config = STATUS_CONFIG[status];
 
+  useEffect(() => {
+    const supplier = currentSupplier.find((item) => item.id === from);
+
+    if (supplier) {
+      setSupplierName(supplier.supplierName);
+    } else {
+      setSupplierName("Supplier Telah Di Hapus");
+    }
+  });
+
   return (
-    <div className="rounded-2xl border border-gray-400 bg-white p-4 shadow-sm hover:shadow-md transition w-100">
+    <div className="rounded-2xl border border-gray-400 bg-white p-4 shadow-sm hover:shadow-md transition min-w-96">
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
@@ -181,7 +187,7 @@ export default function KainCard({ cardData }) {
               className={`w-full text-xs px-3 py-1 rounded-md ${config.buttonStyle}`}
               onClick={config.next}
             >
-              <span className="bi bi-house-check-fill mr-2"></span>
+              <span className={`${config.primaryIcon} mr-2`}></span>
               {config.primaryActionText}
             </button>
           </div>
@@ -190,7 +196,7 @@ export default function KainCard({ cardData }) {
             <div className="flex gap-3">
               <button
                 className={`w-full text-xs px-3 py-1 rounded-md ${config.secondaryButtonStyle}`}
-                onClick={config.next}
+                onClick={config.secondaryNext}
               >
                 <span className="bi bi-intersect mr-2"></span>
                 {config.secondaryActionText}

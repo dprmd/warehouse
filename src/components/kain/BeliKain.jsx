@@ -40,6 +40,7 @@ export default function BeliKain({ closeModal }) {
       from: form.from,
       price: raw(form.price),
       status: "IN_TRANSIT",
+      merged: false,
       time: {
         timeOfPurchase: Date.now(),
       },

@@ -3,6 +3,7 @@ import { useUI } from "@/context/UIContext";
 import { useChangeDocument } from "@/hooks/useChangeDocument";
 
 export default function KaryawanCard({ cardData }) {
+  if (!cardData) return null;
   const { showModal, closeModal } = useUI();
   const { id, namaKaryawan, role } = cardData;
   const { hapusDocument } = useChangeDocument();

@@ -13,6 +13,7 @@ import DaftarKaryawan from "./pages/warehouse/EMPLOYEE/DaftarKaryawan";
 import KainDalamPerjalanan from "./pages/warehouse/IN_TRANSIT/KainDalamPerjalanan";
 import DaftarSupplier from "./pages/warehouse/SUPPLIERS/DaftarSupplier";
 import { SupplierProvider } from "./context/SupplierContext";
+import MergeKain from "./pages/warehouse/ARRIVED_AT_WAREHOUSE/MergeKain";
 
 const userId = localStorage.getItem("userId");
 
@@ -32,7 +33,10 @@ const router = createHashRouter([
       },
       {
         path: "kainDiGudang",
-        children: [{ index: true, element: <KainDiGudang /> }],
+        children: [
+          { index: true, element: <KainDiGudang /> },
+          { path: "mergeKain/:id", element: <MergeKain /> },
+        ],
       },
       {
         path: "daftarKaryawan",
