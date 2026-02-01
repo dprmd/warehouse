@@ -81,7 +81,6 @@ export default function EditKain({ kain, closeModal }) {
           <div className="flex-2">
             <InputControlled
               id="quantity"
-              type="number"
               value={form.quantity}
               onChange={updateForm("quantity")}
               placeholder="Berapa Roll / Yard"
@@ -139,7 +138,13 @@ export default function EditKain({ kain, closeModal }) {
         <Button variant="secondary" onClick={closeModal} type="button">
           Batalkan
         </Button>
-        <Button type="submit">Konfirmasi</Button>
+        <Button
+          type="submit"
+          disabled={currentSupplier.length > 0 ? false : true}
+          variant={currentSupplier.length > 0 ? "primary" : "disabled"}
+        >
+          Konfirmasi
+        </Button>
       </FormGroup>
     </Form>
   );

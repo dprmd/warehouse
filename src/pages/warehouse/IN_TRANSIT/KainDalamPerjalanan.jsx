@@ -3,7 +3,7 @@ import UIList from "@/components/reusable/UIList";
 import FloatingAddButton from "@/components/ui/FloatingAddButton";
 import { useKain } from "@/context/KainContext";
 import { useUI } from "@/context/UIContext";
-import BeliKain from "../../../components/kain/BeliKain";
+import BeliKain from "@/components/kain/BeliKain";
 
 export default function KainDalamPerjalanan() {
   const { showModal, closeModal } = useUI();

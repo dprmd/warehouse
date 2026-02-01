@@ -1,14 +1,13 @@
 import { useSupplier } from "@/context/SupplierContext";
-import { formatPrice, formatTanggalJamIndonesia } from "@/lib/function";
+import { formatPrice } from "@/lib/function";
+import { useEffect, useState } from "react";
 
 export default function ListMerge({ cardData }) {
   if (!cardData) return null;
   const { namaKain, quantity, quantityType, status, price, merged, from } =
     cardData;
   const { data: currentSupplier } = useSupplier();
-  const supplierName = currentSupplier.find(
-    (item) => item.id === from,
-  ).supplierName;
+  const [supplierName, setSupplierName] = useState("");
 
   const STATUS_CONFIG = {
     ARRIVED_AT_WAREHOUSE: {
@@ -21,6 +20,16 @@ export default function ListMerge({ cardData }) {
     },
   };
   const config = STATUS_CONFIG[status];
+
+  useEffect(() => {
+    const supplier = currentSupplier.find((item) => item.id === from);
+
+    if (supplier) {
+      setSupplierName(supplier.supplierName);
+    } else {
+      setSupplierName("Supplier Telah Di Hapus");
+    }
+  });
 
   return (
     <div className="rounded-2xl border border-gray-400 bg-white p-4 shadow-sm hover:shadow-md transition min-w-96">

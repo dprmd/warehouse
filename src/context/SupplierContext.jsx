@@ -3,17 +3,18 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 const SupplierContext = createContext();
 
-export function SupplierProvider({ ownerId, children }) {
+export function SupplierProvider({ children }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const userId = localStorage.getItem("userId");
 
   const fetchSupplier = async () => {
     setLoading(true);
     const supplier = await getDocuments(
       "Ambil List Supplier",
       "supplier",
-      ownerId,
+      userId,
       "oldToNew",
     );
     if (supplier.success) {
@@ -27,10 +28,10 @@ export function SupplierProvider({ ownerId, children }) {
   };
 
   useEffect(() => {
-    if (ownerId) {
+    if (userId) {
       fetchSupplier();
     }
-  }, [ownerId]);
+  }, [userId]);
 
   return (
     <SupplierContext.Provider

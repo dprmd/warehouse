@@ -94,7 +94,6 @@ export default function BeliKain({ closeModal }) {
           <div className="flex-2">
             <InputControlled
               id="quantity"
-              type="number"
               value={form.quantity}
               onChange={updateForm("quantity")}
               placeholder="Berapa Roll / Yard"

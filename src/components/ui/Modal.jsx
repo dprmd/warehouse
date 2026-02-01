@@ -16,6 +16,7 @@ const Modal = ({
   nextDisabled = false,
   closeText,
   closeDisabled = false,
+  className = "",
 }) => {
   useEffect(() => {
     if (!isOpen) return;
@@ -38,7 +39,9 @@ const Modal = ({
   const showNext = nextText && onNext;
 
   return (
-    <div className="px-2 fixed inset-0 z-50 flex items-center justify-center">
+    <div
+      className={`p-2 fixed inset-0 z-50 flex items-center justify-center ${className}`}
+    >
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/40" />
 
@@ -61,6 +64,7 @@ const Modal = ({
         <div className="mt-6 flex justify-end gap-2">
           {!closeDisabled && (
             <button
+              type="button"
               onClick={() => {
                 onClose();
                 setIsOpen(false);
@@ -73,6 +77,7 @@ const Modal = ({
 
           {showNext && (
             <button
+              type="button"
               onClick={onNext}
               disabled={nextDisabled}
               className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white

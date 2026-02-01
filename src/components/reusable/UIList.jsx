@@ -1,6 +1,12 @@
 import LoadingOverlay from "@/components/ui/LoadingOverlay";
 
-export default function UIList({ data, loading, messageOnZeroData, Card }) {
+export default function UIList({
+  data,
+  loading,
+  messageOnZeroData,
+  Card,
+  ...props
+}) {
   return (
     <div className="p-4">
       <LoadingOverlay show={loading} text="Memuat . . ." />
@@ -10,7 +16,7 @@ export default function UIList({ data, loading, messageOnZeroData, Card }) {
       {!loading && data?.length > 0 && (
         <ul className="flex justify-center md:justify-start items-center flex-wrap gap-4">
           {data?.map((item) => (
-            <Card key={item.id} cardData={item} />
+            <Card key={item.id} cardData={item} {...props} />
           ))}
         </ul>
       )}

@@ -41,8 +41,9 @@ export function UIProvider({ children }) {
     setActiveModal({ ...defaultModal, ...params });
   };
 
-  const closeModal = () => {
+  const closeModal = (reset) => {
     setModalOpen(false);
+    if (!reset) return;
     setActiveModal(defaultModal);
   };
 

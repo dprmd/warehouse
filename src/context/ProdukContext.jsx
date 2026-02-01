@@ -1,51 +1,51 @@
 import { getDocuments } from "@/services/firebase/docService";
 import { createContext, useContext, useEffect, useState } from "react";
 
-const KainContext = createContext();
+const ProdukContext = createContext();
 
-export function KainProvider({ children }) {
+export function ProdukProvider({ children }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const userId = localStorage.getItem("userId");
 
-  const fetchKain = async () => {
+  const fetchProduk = async () => {
     setLoading(true);
-    const kain = await getDocuments(
-      "Ambil List Kain",
-      "kain",
+    const produk = await getDocuments(
+      "Ambil List Produk",
+      "produk",
       userId,
       "newToOld",
     );
-    if (kain.success) {
-      setData(kain.data);
+    if (produk.success) {
+      setData(produk.data);
       setLoading(false);
     } else {
-      setError(kain.error);
+      setError(produk.error);
       setLoading(false);
-      console.log(kain.error);
+      console.log(produk.error);
     }
   };
 
   useEffect(() => {
     if (userId) {
-      fetchKain();
+      fetchProduk();
     }
   }, [userId]);
 
   return (
-    <KainContext.Provider
+    <ProdukContext.Provider
       value={{
         data,
         setData,
         loading,
         error,
-        refetch: fetchKain,
+        refetch: fetchProduk,
       }}
     >
       {children}
-    </KainContext.Provider>
+    </ProdukContext.Provider>
   );
 }
 
-export const useKain = () => useContext(KainContext);
+export const useProduk = () => useContext(ProdukContext);

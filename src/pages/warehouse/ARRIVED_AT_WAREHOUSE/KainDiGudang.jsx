@@ -15,6 +15,7 @@ export default function KainDiGudang() {
         data={kainDiGudang}
         loading={loading}
         messageOnZeroData={"Gudang Kosong 😭"}
+        totalKainDiGudang={kainDiGudang.length}
       />
     </div>
   );

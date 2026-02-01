@@ -1,12 +1,17 @@
 import { useUI } from "@/context/UIContext";
 import { useChangeDocument } from "@/hooks/useChangeDocument";
+import { useEffect, useState } from "react";
 import EditSupplier from "./EditSupplier";
+import { useRef } from "react";
 
 export default function SupplierCard({ cardData }) {
   if (!cardData) return null;
   const { showModal, closeModal } = useUI();
   const { hapusDocument } = useChangeDocument();
   const { id, supplierName, phoneNumber, address, note } = cardData;
+  const [expanded, setExpanded] = useState(false);
+  const [isClamped, setIsClamped] = useState(false);
+  const textRef = useRef(null);
 
   const handleHapusSupplier = async (e) => {
     await hapusDocument(
@@ -18,6 +23,14 @@ export default function SupplierCard({ cardData }) {
       "supplierContext",
     );
   };
+
+  useEffect(() => {
+    const el = textRef.current;
+    if (!el) return;
+
+    // cek apakah text kepotong
+    setIsClamped(el.scrollHeight > el.clientHeight);
+  }, [note]);
 
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md min-w-96">
@@ -46,7 +59,22 @@ export default function SupplierCard({ cardData }) {
       {note.replaceAll(" ", "") && (
         <div className="mt-2 flex items-start gap-2 text-sm italic text-gray-500">
           <i className="bi bi-journal-text mt-0.5 text-gray-400"></i>
-          <p className="line-clamp-2">“{note}”</p>
+          <div>
+            <p
+              ref={textRef}
+              className={`${expanded ? "" : "line-clamp-2"} whitespace-pre-line`}
+            >
+              “{note}”
+            </p>
+            {isClamped && (
+              <button
+                className="text-blue-500 text-xs mt-1"
+                onClick={() => setExpanded(!expanded)}
+              >
+                {expanded ? "Tutup" : "Lihat selengkapnya"}
+              </button>
+            )}
+          </div>
         </div>
       )}
 

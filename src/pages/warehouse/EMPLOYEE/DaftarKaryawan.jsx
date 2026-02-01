@@ -1,7 +1,7 @@
 import LoadingOverlay from "@/components/ui/LoadingOverlay";
 import { useKaryawan } from "@/context/KaryawanContext";
 import { useUI } from "@/context/UIContext";
-import TambahKaryawan from "../../../components/karyawan/TambahKaryawan";
+import TambahKaryawan from "@/components/karyawan/TambahKaryawan";
 import FloatingAddButton from "@/components/ui/FloatingAddButton";
 import KaryawanCard from "@/components/karyawan/KaryawanCard";
 import UIList from "@/components/reusable/UIList";

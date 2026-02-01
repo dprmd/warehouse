@@ -52,3 +52,16 @@ export const formatPrice = (price) =>
 
 export const isSameObject = (oldData, newData) =>
   JSON.stringify(oldData) === JSON.stringify(newData);
+
+export function getFinalPrice(price, discount, discountType) {
+  const p = Number(price) || 0;
+  const d = Number(discount) || 0;
+
+  if (!d) return p;
+
+  if (discountType === "percent") {
+    return Math.max(p - p * (d / 100), 0);
+  }
+
+  return Math.max(p - d, 0);
+}

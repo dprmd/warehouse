@@ -3,17 +3,18 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 const KaryawanContext = createContext();
 
-export function KaryawanProvider({ ownerId, children }) {
+export function KaryawanProvider({ children }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const userId = localStorage.getItem("userId");
 
   const fetchKaryawan = async () => {
     setLoading(true);
     const karyawan = await getDocuments(
       "Ambil List Karyawan",
       "karyawan",
-      ownerId,
+      userId,
       "newToOld",
     );
     if (karyawan.success) {
@@ -27,10 +28,10 @@ export function KaryawanProvider({ ownerId, children }) {
   };
 
   useEffect(() => {
-    if (ownerId) {
+    if (userId) {
       fetchKaryawan();
     }
-  }, [ownerId]);
+  }, [userId]);
 
   return (
     <KaryawanContext.Provider

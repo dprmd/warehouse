@@ -8,7 +8,7 @@ import {
   serverTimestamp,
   where,
 } from "firebase/firestore";
-import { normalizeString } from "../../lib/function";
+import { normalizeString } from "@/lib/function";
 import { db } from "./firebase";
 
 export const registerUser = async (username, password) => {

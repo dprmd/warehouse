@@ -20,7 +20,7 @@ export default function Login() {
         duration: 1500,
       });
     } else {
-      toast.info(result.message, {
+      toast.success(result.message, {
         position: "top-center",
         duration: 1500,
       });

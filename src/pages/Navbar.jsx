@@ -12,11 +12,11 @@ export default function Navbar() {
   const menus = [
     { to: "kainDalamPerjalanan", label: "Kain Dalam Perjalanan" },
     { to: "kainDiGudang", label: "Kain Di Gudang" },
+    { to: "daftarProduk", label: "Produk" },
     { to: "daftarKaryawan", label: "Daftar Karyawan" },
     { to: "daftarSupplier", label: "Supplier" },
   ];
 
-  // close sidebar when click outside (mobile only)
   useEffect(() => {
     function handleClickOutside(e) {
       if (

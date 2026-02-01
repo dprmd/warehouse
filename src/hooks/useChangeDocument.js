@@ -1,5 +1,6 @@
 import { useKain } from "@/context/KainContext";
 import { useKaryawan } from "@/context/KaryawanContext";
+import { useProduk } from "@/context/ProdukContext";
 import { useSupplier } from "@/context/SupplierContext";
 import { useUI } from "@/context/UIContext";
 import { isSameObject } from "@/lib/function";
@@ -15,6 +16,7 @@ export const useChangeDocument = () => {
   const { data: kain, setData: updateKain } = useKain();
   const { data: karyawan, setData: updateKaryawan } = useKaryawan();
   const { data: supplier, setData: updateSupplier } = useSupplier();
+  const { data: produk, setData: updateProduk } = useProduk();
 
   const context = {
     karyawanContext: {
@@ -28,6 +30,10 @@ export const useChangeDocument = () => {
     supplierContext: {
       currentData: supplier,
       updateData: updateSupplier,
+    },
+    produkContext: {
+      currentData: produk,
+      updateData: updateProduk,
     },
   };
 
@@ -52,6 +58,8 @@ export const useChangeDocument = () => {
       }
     }
 
+    const oldData = context[contextName].currentData;
+
     try {
       showLoading(loadingText);
       const res = await updateDocument(
@@ -67,11 +75,14 @@ export const useChangeDocument = () => {
           position: "top-center",
           duration: 1500,
         });
+
+        // OPTIMISTIC UI
+        context[contextName].updateData([...oldData]);
         closeModal();
         return;
       }
 
-      toast.info(res.message, {
+      toast.success(res.message, {
         position: "top-center",
         duration: 1500,
       });
@@ -97,33 +108,46 @@ export const useChangeDocument = () => {
     messageOnSucces,
     contextName,
   ) => {
+    const oldData = context[contextName].currentData;
     try {
       closeModal();
       showLoading(loadingText);
-      const res = await deleteDocument(
-        operationName,
-        collectionName,
-        docId,
-        messageOnSucces,
-      );
-
-      if (!res.success) {
-        toast.error(res.message, {
-          position: "top-center",
-          duration: 1500,
-        });
-        return;
-      }
-
-      toast.info(res.message, {
-        position: "top-center",
-        duration: 1500,
-      });
 
       // OPTIMISTIC UI
       context[contextName].updateData(
         context[contextName].currentData.filter((item) => item.id !== docId),
       );
+
+      toast.success("Berhasil Menghapus", {
+        position: "top-right",
+        duration: 3000,
+        onAutoClose: async () => {
+          const res = await deleteDocument(
+            operationName,
+            collectionName,
+            docId,
+            messageOnSucces,
+          );
+
+          if (!res.success) {
+            toast.error(res.message, {
+              position: "top-center",
+              duration: 1500,
+            });
+
+            // OPTIMISTIC UI
+            context[contextName].updateData([...oldData]);
+            return;
+          }
+        },
+        action: {
+          label: "Undo",
+          onClick: () => {
+            // OPTIMISTIC UI
+            context[contextName].updateData([...oldData]);
+          },
+        },
+      });
     } finally {
       closeLoading();
     }
@@ -138,6 +162,7 @@ export const useChangeDocument = () => {
     contextName,
     placement,
   ) => {
+    const oldData = context[contextName].currentData;
     try {
       showLoading(loadingText);
       const res = await createDocument(
@@ -152,11 +177,14 @@ export const useChangeDocument = () => {
           position: "top-center",
           duration: 1500,
         });
+
+        // OPTIMISTIC UI
+        context[contextName].updateData([...oldData]);
         closeModal();
         return;
       }
 
-      toast.info(res.message, {
+      toast.success(res.message, {
         position: "top-center",
         duration: 1500,
       });

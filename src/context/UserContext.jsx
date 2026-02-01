@@ -3,14 +3,15 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 const UserContext = createContext();
 
-export function UserProvider({ ownerId, children }) {
+export function UserProvider({ children }) {
   const [user, setUser] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const userId = localStorage.getItem("userId");
 
   const fetchUser = async () => {
     setLoading(true);
-    const aUser = await getUserById(ownerId);
+    const aUser = await getUserById(userId);
     if (aUser.success) {
       setUser(aUser);
       setLoading(false);
@@ -22,10 +23,10 @@ export function UserProvider({ ownerId, children }) {
   };
 
   useEffect(() => {
-    if (ownerId) {
+    if (userId) {
       fetchUser();
     }
-  }, [ownerId]);
+  }, [userId]);
 
   return (
     <UserContext.Provider

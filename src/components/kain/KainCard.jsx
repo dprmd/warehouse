@@ -5,8 +5,9 @@ import { formatPrice, formatTanggalJamIndonesia } from "@/lib/function";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import EditKain from "./EditKain";
+import { toast } from "sonner";
 
-export default function KainCard({ cardData }) {
+export default function KainCard({ cardData, ...props }) {
   if (!cardData) return null;
   const navigate = useNavigate();
   const { id, namaKain, from, quantity, quantityType, price, status, time } =
@@ -121,7 +122,14 @@ export default function KainCard({ cardData }) {
         });
       },
       secondaryNext: () => {
-        navigate(`mergeKain/${id}`);
+        if (props.totalKainDiGudang === 1) {
+          toast.error("Tidak Ada Kain Lainnya Di Gudang", {
+            position: "top-center",
+            duration: 2500,
+          });
+        } else {
+          navigate(`mergeKain/${id}`);
+        }
       },
     },
   };
